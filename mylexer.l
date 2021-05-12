@@ -10,7 +10,7 @@ NUMBER  [+-]?{DIGIT}{DIGIT}*
 DECIMAL ([+-]?"."{NUMBER})|([+-]?{NUMBER}("."{NUMBER}?)?)
 REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 
-DELIMS  {"("|")"|}
+DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 
 %x comment
 
@@ -74,12 +74,12 @@ DELIMS  {"("|")"|}
 {ID}                    { printf("IDENTIFIER: %s\n", yytext); } /* Identifiers */
 [ \t\r]+                /* White Space */
 
-"//"[^\n]*  		    { printf("token LINE_COMMENT: %s\n", yytext); } /* Comments */
-"/*"                    { BEGIN(comment); printf("token BLOCK_COMMENT: "); yymore(); }
+"//"[^\n]*  		     /* Comments */
+"/*"                    { BEGIN(comment); }
 <comment>[^*\n]*        /* eat anything that's not a '*' */ yymore();
 <comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */ yymore();
-<comment>\n             lineNum++; yymore();
-<comment>"*"+"/"        { BEGIN(INITIAL); printf("%s\n", yytext); }
+<comment>\n             lineNum++; 
+<comment>"*"+"/"        { BEGIN(INITIAL); }
 
 
 .                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, lineNum, "test"); }

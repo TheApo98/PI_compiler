@@ -1,1 +1,6 @@
-asdf123
+asdf_123fdbd = a + b;
+^
+int ab;
+//Line comment
+/* comment
+block */

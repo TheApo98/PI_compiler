@@ -10,7 +10,8 @@ NUMBER  [+-]?{DIGIT}{DIGIT}*
 DECIMAL ([+-]?"."{NUMBER})|([+-]?{NUMBER}("."{NUMBER}?)?)
 REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 
-%x string
+DELIMS  {"("|")"|}
+
 %x comment
 
 /* Rules */
@@ -57,22 +58,28 @@ REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 "["                     { printf("token L_BRACKET: %s\n", yytext); }
 "]"                     { printf("token R_BRACKET: %s\n", yytext); }
 "{"                     { printf("token L_CURLY_BRACKET: %s\n", yytext); }
-"}"                     { printf("token R_CURLY_BRACKET: %s\n", yytext); }
 
-\"                      { BEGIN(string); printf("STRING: %s\n", yytext); }
-<string>[^\n]* 
-<string>\"              { BEGIN(INITIAL); printf("STRING: %s\n", yytext); }
+
+"readString"            { printf("token FUNC: %s\n", yytext); }  /* Functions */
+"readInt"               { printf("token FUNC: %s\n", yytext); }
+"readReal"              { printf("token FUNC: %s\n", yytext); }
+"writeString"           { printf("token FUNC: %s\n", yytext); }
+"writeInt"              { printf("token FUNC: %s\n", yytext); }
+"writeReal"             { printf("token FUNC: %s\n", yytext); }
+
+(\").*(\")|(\').*(\')   { printf("token STRING: %s\n", yytext); }
+{NUMBER}                { printf("token INTEGER: %s\n", yytext); }
+{REAL}                  { printf("token REAL: %s\n", yytext); }
 
 {ID}                    { printf("IDENTIFIER: %s\n", yytext); } /* Identifiers */
 [ \t\r]+                /* White Space */
 
-
-"//"[^\n]*  		    { printf("LINE_COMMENT: %s\n", yytext); } /* Comments */
-"/*"                    { BEGIN(comment); printf("comment started at line: %d\n", lineNum); }
-<comment>[^*\n]*        /* eat anything that's not a '*' */
-<comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */
-<comment>\n             lineNum++;
-<comment>"*"+"/"        { BEGIN(INITIAL); printf("comment ended at line: %d\n", lineNum); }
+"//"[^\n]*  		    { printf("token LINE_COMMENT: %s\n", yytext); } /* Comments */
+"/*"                    { BEGIN(comment); printf("token BLOCK_COMMENT: "); yymore(); }
+<comment>[^*\n]*        /* eat anything that's not a '*' */ yymore();
+<comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */ yymore();
+<comment>\n             lineNum++; yymore();
+<comment>"*"+"/"        { BEGIN(INITIAL); printf("%s\n", yytext); }
 
 
 .                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, lineNum, "test"); }
@@ -89,3 +96,7 @@ int main() {
     }
     return 0;
 }
+/* 
+\"                      { BEGIN(string); printf("STRING: %s\n", yytext); }
+<string>[^\n]* 
+<string>\"              { BEGIN(INITIAL); printf("STRING: %s\n", yytext); } */

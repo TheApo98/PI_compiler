@@ -76,8 +76,8 @@ DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 
 "//"[^\n]*  		     /* Comments */
 "/*"                    { BEGIN(comment); }
-<comment>[^*\n]*        /* eat anything that's not a '*' */ yymore();
-<comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */ yymore();
+<comment>[^*\n]*        /* eat anything that's not a '*' */ 
+<comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */ 
 <comment>\n             lineNum++; 
 <comment>"*"+"/"        { BEGIN(INITIAL); }
 

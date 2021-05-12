@@ -10,54 +10,59 @@ NUMBER  [+-]?{DIGIT}{DIGIT}*
 DECIMAL ([+-]?"."{NUMBER})|([+-]?{NUMBER}("."{NUMBER}?)?)
 REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 
+%x string
 %x comment
 
 /* Rules */
 %%
-"int"                   { printf("KEYWORD: %s\n", yytext); }    /* Keywords */
-"real"                  { printf("KEYWORD: %s\n", yytext); }
-"string"                { printf("KEYWORD: %s\n", yytext); }
-"bool"                  { printf("KEYWORD: %s\n", yytext); }
-"true"                  { printf("KEYWORD: %s\n", yytext); }
-"false"                 { printf("KEYWORD: %s\n", yytext); }
-"var"                   { printf("KEYWORD: %s\n", yytext); }
-"const"                 { printf("KEYWORD: %s\n", yytext); }
-"if"                    { printf("KEYWORD: %s\n", yytext); }
-"else"                  { printf("KEYWORD: %s\n", yytext); }
-"for"                   { printf("KEYWORD: %s\n", yytext); }
-"while"                 { printf("KEYWORD: %s\n", yytext); }
-"break"                 { printf("KEYWORD: %s\n", yytext); }
-"continue"              { printf("KEYWORD: %s\n", yytext); }
-"func"                  { printf("KEYWORD: %s\n", yytext); }
-"nil"                   { printf("KEYWORD: %s\n", yytext); }
-"return"                { printf("KEYWORD: %s\n", yytext); }
-"begin"                 { printf("KEYWORD: %s\n", yytext); }
+"int"                   { printf("token KEYWORD_INT: %s\n", yytext); }    /* Keywords */
+"real"                  { printf("token KEYWORD_REAL: %s\n", yytext); }
+"string"                { printf("token KEYWORD_STRING: %s\n", yytext); }
+"bool"                  { printf("token KEYWORD_BOOL: %s\n", yytext); }
+"true"                  { printf("token KEYWORD_TRUE: %s\n", yytext); }
+"false"                 { printf("token KEYWORD_FALSE: %s\n", yytext); }
+"var"                   { printf("token KEYWORD_VAR: %s\n", yytext); }
+"const"                 { printf("token KEYWORD_CONST: %s\n", yytext); }
+"if"                    { printf("token KEYWORD_IF: %s\n", yytext); }
+"else"                  { printf("token KEYWORD_ELSE: %s\n", yytext); }
+"for"                   { printf("token KEYWORD_FOR: %s\n", yytext); }
+"while"                 { printf("token KEYWORD_WHILE: %s\n", yytext); }
+"break"                 { printf("token KEYWORD_BREAK: %s\n", yytext); }
+"continue"              { printf("token KEYWORD_CONTINUE: %s\n", yytext); }
+"func"                  { printf("token KEYWORD_FUNC: %s\n", yytext); }
+"nil"                   { printf("token KEYWORD_NIL: %s\n", yytext); }
+"return"                { printf("token KEYWORD_RETURN: %s\n", yytext); }
+"begin"                 { printf("token KEYWORD_BEGIN: %s\n", yytext); }
+token 
+"="                     { printf("token ASSIGN_OP: %s\n", yytext); }  /* Operators */
+"+"                     { printf("token PLUS_OP: %s\n", yytext); }
+"-"                     { printf("token MINUS_OP: %s\n", yytext); }
+"*"                     { printf("token MULT_OP: %s\n", yytext); }
+"%"                     { printf("token MOD_OP: %s\n", yytext); }
+"**"                    { printf("token POWER_OP: %s\n", yytext); }
+"<"                     { printf("token LESS_OP: %s\n", yytext); }
+">"                     { printf("token GREATER_OP: %s\n", yytext); }
+"<="                    { printf("token LESS_EQ_OP: %s\n", yytext); }
+">="                    { printf("token GREATER_EQ_OP: %s\n", yytext); }
+"=="                    { printf("token EQUALS_OP: %s\n", yytext); }
+"!="                    { printf("token NOT_EQUALS_OP: %s\n", yytext); }
+"and"                   { printf("token AND_LOGIC_OP: %s\n", yytext); }
+"or"                    { printf("token OR_LOGIC_OP: %s\n", yytext); }
+"not"                   { printf("token NOT_LOGIC_OP: %s\n", yytext); }
+token 
+token 
+";"                     { printf("token SEMICOLON: %s\n", yytext); }  /* Delimiters */
+"("                     { printf("token L_PARENTHESIS: %s\n", yytext); }
+")"                     { printf("token R_PARENTHESIS: %s\n", yytext); }
+","                     { printf("token COMMA: %s\n", yytext); }
+"["                     { printf("token L_BRACKET: %s\n", yytext); }
+"]"                     { printf("token R_BRACKET: %s\n", yytext); }
+"{"                     { printf("token L_CURLY_BRACKET: %s\n", yytext); }
+"}"                     { printf("token R_CURLY_BRACKET: %s\n", yytext); }
 
-"="                     { printf("ASSIGN_OP: %s\n", yytext); }  /* Operators */
-"+"                     { printf("PLUS_OP: %s\n", yytext); }
-"-"                     { printf("MINUS_OP: %s\n", yytext); }
-"*"                     { printf("MULT_OP: %s\n", yytext); }
-"%"                     { printf("MOD_OP: %s\n", yytext); }
-"**"                    { printf("POWER_OP: %s\n", yytext); }
-"<"                     { printf("LESS_OP: %s\n", yytext); }
-">"                     { printf("GREATER_OP: %s\n", yytext); }
-"<="                    { printf("LESS_EQ_OP: %s\n", yytext); }
-">="                    { printf("GREATER_EQ_OP: %s\n", yytext); }
-"=="                    { printf("EQUALS_OP: %s\n", yytext); }
-"!="                    { printf("NOT_EQUALS_OP: %s\n", yytext); }
-"and"                   { printf("AND_LOGIC_OP: %s\n", yytext); }
-"or"                    { printf("OR_LOGIC_OP: %s\n", yytext); }
-"not"                   { printf("NOT_LOGIC_OP: %s\n", yytext); }
-
-
-";"                     { printf("SEMICOLON: %s\n", yytext); }  /* Delimiters */
-"("                     { printf("L_PARENTHESIS: %s\n", yytext); }
-")"                     { printf("R_PARENTHESIS: %s\n", yytext); }
-","                     { printf("COMMA: %s\n", yytext); }
-"["                     { printf("L_BRACKET: %s\n", yytext); }
-"]"                     { printf("R_BRACKET: %s\n", yytext); }
-"{"                     { printf("L_CUR_BRACKET: %s\n", yytext); }
-"}"                     { printf("R_CUR_BRACKET: %s\n", yytext); }
+\"                      { BEGIN(string); printf("STRING: %s\n", yytext); }
+<string>[^\n]* 
+<string>\"              { BEGIN(INITIAL); printf("STRING: %s\n", yytext); }
 
 {ID}                    { printf("IDENTIFIER: %s\n", yytext); } /* Identifiers */
 [ \t\r]+                /* White Space */

@@ -33,7 +33,7 @@ REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 "nil"                   { printf("token KEYWORD_NIL: %s\n", yytext); }
 "return"                { printf("token KEYWORD_RETURN: %s\n", yytext); }
 "begin"                 { printf("token KEYWORD_BEGIN: %s\n", yytext); }
-token 
+ 
 "="                     { printf("token ASSIGN_OP: %s\n", yytext); }  /* Operators */
 "+"                     { printf("token PLUS_OP: %s\n", yytext); }
 "-"                     { printf("token MINUS_OP: %s\n", yytext); }
@@ -49,8 +49,7 @@ token
 "and"                   { printf("token AND_LOGIC_OP: %s\n", yytext); }
 "or"                    { printf("token OR_LOGIC_OP: %s\n", yytext); }
 "not"                   { printf("token NOT_LOGIC_OP: %s\n", yytext); }
-token 
-token 
+
 ";"                     { printf("token SEMICOLON: %s\n", yytext); }  /* Delimiters */
 "("                     { printf("token L_PARENTHESIS: %s\n", yytext); }
 ")"                     { printf("token R_PARENTHESIS: %s\n", yytext); }

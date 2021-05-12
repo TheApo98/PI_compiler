@@ -10,6 +10,7 @@ NUMBER  [+-]?{DIGIT}{DIGIT}*
 DECIMAL ([+-]?"."{NUMBER})|([+-]?{NUMBER}("."{NUMBER}?)?)
 REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 
+%x comment
 
 /* Rules */
 %%
@@ -62,7 +63,14 @@ REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 [ \t\r]+                /* White Space */
 
 
-"//"[^\n]*  		    { printf("Line %d: line comment: %s\n", lineNum, yytext); } /* Comments */
+"//"[^\n]*  		    { printf("LINE_COMMENT: %s\n", yytext); } /* Comments */
+"/*"                    { BEGIN(comment); printf("comment started at line: %d\n", lineNum); }
+<comment>[^*\n]*        /* eat anything that's not a '*' */
+<comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */
+<comment>\n             lineNum++;
+<comment>"*"+"/"        { BEGIN(INITIAL); printf("comment ended at line: %d\n", lineNum); }
+
+
 .                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, lineNum, "test"); }
 \n                      { lineNum++; }
 

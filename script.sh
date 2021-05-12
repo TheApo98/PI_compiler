@@ -19,5 +19,5 @@ flex "$lexfile"
 # Compile the .c file
 gcc -o ${str[0]} lex.yy.c -lfl
 
-# Run the executable with the .in file
-./${str[0]} < "$example"
+# Run the executable with the .pi file
+./${str[0]} < examples/"$example"

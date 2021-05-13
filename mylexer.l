@@ -6,8 +6,8 @@ int lineNum = 1;
 
 ID      [a-zA-Z][0-9a-zA-Z_]*
 DIGIT   [0-9]
-NUMBER  [+-]?{DIGIT}{DIGIT}*
-DECIMAL ([+-]?"."{NUMBER})|([+-]?{NUMBER}("."{NUMBER}?)?)
+NUMBER  {DIGIT}{DIGIT}*
+DECIMAL ("."{NUMBER})|({NUMBER}("."{NUMBER}?)?)
 REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 
 DELIMS  {"("|")"|"["|"]"|"{"|"}"}
@@ -60,18 +60,18 @@ DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 "{"                     { printf("token L_CURLY_BRACKET: %s\n", yytext); return L_CURLY_BRACKET; }
 
 
-"readString"            { printf("token FUNC: %s\n", yytext); return FUNC; }  /* Functions */
-"readInt"               { printf("token FUNC: %s\n", yytext); return FUNC; }
-"readReal"              { printf("token FUNC: %s\n", yytext); return FUNC; }
-"writeString"           { printf("token FUNC: %s\n", yytext); return FUNC; }
-"writeInt"              { printf("token FUNC: %s\n", yytext); return FUNC; }
-"writeReal"             { printf("token FUNC: %s\n", yytext); return FUNC; }
+"readString"            { printf("token RS_FUNC: %s\n", yytext); return FUNC; }  /* Functions */
+"readInt"               { printf("token RI_FUNC: %s\n", yytext); return FUNC; }
+"readReal"              { printf("token RR_FUNC: %s\n", yytext); return FUNC; }
+"writeString"           { printf("token WS_FUNC: %s\n", yytext); return FUNC; }
+"writeInt"              { printf("token WI_FUNC: %s\n", yytext); return FUNC; }
+"writeReal"             { printf("token WR_FUNC: %s\n", yytext); return FUNC; }
 
 (\").*(\")|(\').*(\')   { printf("token CONST_STRING: %s\n", yytext); return CONST_STRING; }
 {NUMBER}                { printf("token INTEGER: %s\n", yytext); return INTEGER; }
 {REAL}                  { printf("token REAL: %s\n", yytext); return REAL; }
 
-{ID}                    { printf("IDENTIFIER: %s\n", yytext); return IDENTIFIER; } /* Identifiers */
+{ID}                    { printf("token IDENTIFIER: %s\n", yytext); return IDENTIFIER; } /* Identifiers */
 [ \t\r]+                /* White Space */
 
 "//"[^\n]*  		    /* Comments */

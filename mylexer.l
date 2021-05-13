@@ -16,65 +16,65 @@ DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 
 /* Rules */
 %%
-"int"                   { printf("token KEYWORD_INT: %s\n", yytext); }    /* Keywords */
-"real"                  { printf("token KEYWORD_REAL: %s\n", yytext); }
-"string"                { printf("token KEYWORD_STRING: %s\n", yytext); }
-"bool"                  { printf("token KEYWORD_BOOL: %s\n", yytext); }
-"true"                  { printf("token KEYWORD_TRUE: %s\n", yytext); }
-"false"                 { printf("token KEYWORD_FALSE: %s\n", yytext); }
-"var"                   { printf("token KEYWORD_VAR: %s\n", yytext); }
-"const"                 { printf("token KEYWORD_CONST: %s\n", yytext); }
-"if"                    { printf("token KEYWORD_IF: %s\n", yytext); }
-"else"                  { printf("token KEYWORD_ELSE: %s\n", yytext); }
-"for"                   { printf("token KEYWORD_FOR: %s\n", yytext); }
-"while"                 { printf("token KEYWORD_WHILE: %s\n", yytext); }
-"break"                 { printf("token KEYWORD_BREAK: %s\n", yytext); }
-"continue"              { printf("token KEYWORD_CONTINUE: %s\n", yytext); }
-"func"                  { printf("token KEYWORD_FUNC: %s\n", yytext); }
-"nil"                   { printf("token KEYWORD_NIL: %s\n", yytext); }
-"return"                { printf("token KEYWORD_RETURN: %s\n", yytext); }
-"begin"                 { printf("token KEYWORD_BEGIN: %s\n", yytext); }
+"int"                   { printf("token KEYWORD_INT: %s\n", yytext); return KEYWORD_INT; }    /* Keywords */
+"real"                  { printf("token KEYWORD_REAL: %s\n", yytext); return KEYWORD_REAL; }
+"string"                { printf("token KEYWORD_STRING: %s\n", yytext); return KEYWORD_STRING; }
+"bool"                  { printf("token KEYWORD_BOOL: %s\n", yytext); return KEYWORD_BOOL; }
+"true"                  { printf("token KEYWORD_TRUE: %s\n", yytext); return KEYWORD_TRUE; }
+"false"                 { printf("token KEYWORD_FALSE: %s\n", yytext); return KEYWORD_FALSE; }
+"var"                   { printf("token KEYWORD_VAR: %s\n", yytext); return KEYWORD_VAR; }
+"const"                 { printf("token KEYWORD_CONST: %s\n", yytext); return KEYWORD_CONST; }
+"if"                    { printf("token KEYWORD_IF: %s\n", yytext); return KEYWORD_IF; }
+"else"                  { printf("token KEYWORD_ELSE: %s\n", yytext); return KEYWORD_ELSE; }
+"for"                   { printf("token KEYWORD_FOR: %s\n", yytext); return KEYWORD_FOR; }
+"while"                 { printf("token KEYWORD_WHILE: %s\n", yytext); return KEYWORD_WHILE; }
+"break"                 { printf("token KEYWORD_BREAK: %s\n", yytext); return KEYWORD_BREAK; }
+"continue"              { printf("token KEYWORD_CONTINUE: %s\n", yytext); return KEYWORD_CONTINUE; }
+"func"                  { printf("token KEYWORD_FUNC: %s\n", yytext); return KEYWORD_FUNC; }
+"nil"                   { printf("token KEYWORD_NIL: %s\n", yytext); return KEYWORD_NIL; }
+"return"                { printf("token KEYWORD_RETURN: %s\n", yytext); return KEYWORD_RETURN; }
+"begin"                 { printf("token KEYWORD_BEGIN: %s\n", yytext); return KEYWORD_BEGIN; }
  
-"="                     { printf("token ASSIGN_OP: %s\n", yytext); }  /* Operators */
-"+"                     { printf("token PLUS_OP: %s\n", yytext); }
-"-"                     { printf("token MINUS_OP: %s\n", yytext); }
-"*"                     { printf("token MULT_OP: %s\n", yytext); }
-"%"                     { printf("token MOD_OP: %s\n", yytext); }
-"**"                    { printf("token POWER_OP: %s\n", yytext); }
-"<"                     { printf("token LESS_OP: %s\n", yytext); }
-">"                     { printf("token GREATER_OP: %s\n", yytext); }
-"<="                    { printf("token LESS_EQ_OP: %s\n", yytext); }
-">="                    { printf("token GREATER_EQ_OP: %s\n", yytext); }
-"=="                    { printf("token EQUALS_OP: %s\n", yytext); }
-"!="                    { printf("token NOT_EQUALS_OP: %s\n", yytext); }
-"and"                   { printf("token AND_LOGIC_OP: %s\n", yytext); }
-"or"                    { printf("token OR_LOGIC_OP: %s\n", yytext); }
-"not"                   { printf("token NOT_LOGIC_OP: %s\n", yytext); }
+"="                     { printf("token ASSIGN_OP: %s\n", yytext); return ASSIGN_OP; }  /* Operators */
+"+"                     { printf("token PLUS_OP: %s\n", yytext); return PLUS_OP; }
+"-"                     { printf("token MINUS_OP: %s\n", yytext); return MINUS_OP; }
+"*"                     { printf("token MULT_OP: %s\n", yytext); return MULT_OP; }
+"%"                     { printf("token MOD_OP: %s\n", yytext); return MOD_OP; }
+"**"                    { printf("token POWER_OP: %s\n", yytext); return POWER_OP; }
+"<"                     { printf("token LESS_OP: %s\n", yytext); return LESS_OP; }
+">"                     { printf("token GREATER_OP: %s\n", yytext); return GREATER_OP; }
+"<="                    { printf("token LESS_EQ_OP: %s\n", yytext); return LESS_EQ_OP; }
+">="                    { printf("token GREATER_EQ_OP: %s\n", yytext); return GREATER_EQ_OP; }
+"=="                    { printf("token EQUALS_OP: %s\n", yytext); return EQUALS_OP; }
+"!="                    { printf("token NOT_EQUALS_OP: %s\n", yytext); return NOT_EQUALS_OP; }
+"and"                   { printf("token AND_LOGIC_OP: %s\n", yytext); return AND_LOGIC_OP; }
+"or"                    { printf("token OR_LOGIC_OP: %s\n", yytext); return OR_LOGIC_OP; }
+"not"                   { printf("token NOT_LOGIC_OP: %s\n", yytext); return NOT_LOGIC_OP; }
 
-";"                     { printf("token SEMICOLON: %s\n", yytext); }  /* Delimiters */
-"("                     { printf("token L_PARENTHESIS: %s\n", yytext); }
-")"                     { printf("token R_PARENTHESIS: %s\n", yytext); }
-","                     { printf("token COMMA: %s\n", yytext); }
-"["                     { printf("token L_BRACKET: %s\n", yytext); }
-"]"                     { printf("token R_BRACKET: %s\n", yytext); }
-"{"                     { printf("token L_CURLY_BRACKET: %s\n", yytext); }
+";"                     { printf("token SEMICOLON: %s\n", yytext); return SEMICOLON; }  /* Delimiters */
+"("                     { printf("token L_PARENTHESIS: %s\n", yytext); return L_PARENTHESIS; }
+")"                     { printf("token R_PARENTHESIS: %s\n", yytext); return R_PARENTHESIS; }
+","                     { printf("token COMMA: %s\n", yytext); return COMMA; }
+"["                     { printf("token L_BRACKET: %s\n", yytext); return L_BRACKET; }
+"]"                     { printf("token R_BRACKET: %s\n", yytext); return R_BRACKET; }
+"{"                     { printf("token L_CURLY_BRACKET: %s\n", yytext); return L_CURLY_BRACKET; }
 
 
-"readString"            { printf("token FUNC: %s\n", yytext); }  /* Functions */
-"readInt"               { printf("token FUNC: %s\n", yytext); }
-"readReal"              { printf("token FUNC: %s\n", yytext); }
-"writeString"           { printf("token FUNC: %s\n", yytext); }
-"writeInt"              { printf("token FUNC: %s\n", yytext); }
-"writeReal"             { printf("token FUNC: %s\n", yytext); }
+"readString"            { printf("token FUNC: %s\n", yytext); return FUNC; }  /* Functions */
+"readInt"               { printf("token FUNC: %s\n", yytext); return FUNC; }
+"readReal"              { printf("token FUNC: %s\n", yytext); return FUNC; }
+"writeString"           { printf("token FUNC: %s\n", yytext); return FUNC; }
+"writeInt"              { printf("token FUNC: %s\n", yytext); return FUNC; }
+"writeReal"             { printf("token FUNC: %s\n", yytext); return FUNC; }
 
-(\").*(\")|(\').*(\')   { printf("token STRING: %s\n", yytext); }
-{NUMBER}                { printf("token INTEGER: %s\n", yytext); }
-{REAL}                  { printf("token REAL: %s\n", yytext); }
+(\").*(\")|(\').*(\')   { printf("token CONST_STRING: %s\n", yytext); return CONST_STRING; }
+{NUMBER}                { printf("token INTEGER: %s\n", yytext); return INTEGER; }
+{REAL}                  { printf("token REAL: %s\n", yytext); return REAL; }
 
-{ID}                    { printf("IDENTIFIER: %s\n", yytext); } /* Identifiers */
+{ID}                    { printf("IDENTIFIER: %s\n", yytext); return IDENTIFIER; } /* Identifiers */
 [ \t\r]+                /* White Space */
 
-"//"[^\n]*  		     /* Comments */
+"//"[^\n]*  		    /* Comments */
 "/*"                    { BEGIN(comment); }
 <comment>[^*\n]*        /* eat anything that's not a '*' */ 
 <comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */ 
@@ -82,7 +82,7 @@ DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 <comment>"*"+"/"        { BEGIN(INITIAL); }
 
 
-.                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, lineNum, "test"); }
+.                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, lineNum, "test"); exit(1); }
 \n                      { lineNum++; }
 
 <<EOF>>                 { return EOF; }

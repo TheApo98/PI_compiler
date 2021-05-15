@@ -1,6 +1,8 @@
 %{
 #include <stdio.h>    
-#include "helperFiles/pilib.h"
+#include "myanalyzer.tab.h"
+#include "helperFiles/cgen.h"
+
 int lineNum = 1;
 %}
 
@@ -40,6 +42,7 @@ DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 "+"                     { printf("token PLUS_OP: %s\n", yytext); return PLUS_OP; }
 "-"                     { printf("token MINUS_OP: %s\n", yytext); return MINUS_OP; }
 "*"                     { printf("token MULT_OP: %s\n", yytext); return MULT_OP; }
+"/"                     { printf("token DIV_OP: %s\n", yytext); return DIV_OP; }
 "%"                     { printf("token MOD_OP: %s\n", yytext); return MOD_OP; }
 "**"                    { printf("token POWER_OP: %s\n", yytext); return POWER_OP; }
 "<"                     { printf("token LESS_OP: %s\n", yytext); return LESS_OP; }
@@ -86,7 +89,7 @@ DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 .                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, lineNum, "test"); exit(1); }
 \n                      { lineNum++; }
 
-<<EOF>>                 { return EOF; }
+<<EOF>>                 {return EOF; }
 %%
 
 

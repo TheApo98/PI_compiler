@@ -9,6 +9,7 @@ DIGIT   [0-9]
 NUMBER  {DIGIT}{DIGIT}*
 DECIMAL ("."{NUMBER})|({NUMBER}("."{NUMBER}?)?)
 REAL    {DECIMAL}([eE][+-]?{NUMBER})?
+STRING  \"[^\"\n]*\"
 
 DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 
@@ -67,7 +68,7 @@ DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 "writeInt"              { printf("token WI_FUNC: %s\n", yytext); return FUNC; }
 "writeReal"             { printf("token WR_FUNC: %s\n", yytext); return FUNC; }
 
-(\").*(\")|(\').*(\')   { printf("token CONST_STRING: %s\n", yytext); return CONST_STRING; }
+{STRING}   { printf("token CONST_STRING: %s\n", yytext); return CONST_STRING; }
 {NUMBER}                { printf("token INTEGER: %s\n", yytext); return INTEGER; }
 {REAL}                  { printf("token REAL: %s\n", yytext); return REAL; }
 

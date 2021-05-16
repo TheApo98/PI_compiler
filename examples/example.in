@@ -1,6 +1,10 @@
 asdf_123fdbd = a + b;
-^
-int ab;
+a = 10;
+b = -12.3
+
+string str = "This is 'a' msg\n";
+string str = "This is a \"diff\" msg\n";
+
 //Line comment
 /* comment
 block */

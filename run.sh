@@ -14,7 +14,7 @@ bison -d -v -r all myanalyzer.y
 flex mylexer.l
 
 # Compile the .c file
-gcc -o mycompiler myanalyzer.tab.c lex.yy.c cgen.c -lfl
+gcc -o mycompiler myanalyzer.tab.c lex.yy.c helperFiles/cgen.c -lfl
 
 # Run the executable with the .pi file
 ./mycompiler < examples/"$example" > "$example".c

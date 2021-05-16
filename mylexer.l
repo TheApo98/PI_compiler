@@ -56,8 +56,8 @@ STRING  \"[^\"\n]*\"
 "not"                   { printf("token NOT_LOGIC_OP: %s\n", yytext); return NOT_LOGIC_OP; }
 
 ";"                     { printf("token SEMICOLON: %s\n", yytext); return SEMICOLON; }  /* Delimiters */
-"("                     { printf("token L_PARENTHESIS: %s\n", yytext); return L_PARENTHESIS; }
-")"                     { printf("token R_PARENTHESIS: %s\n", yytext); return R_PARENTHESIS; }
+"("                     { printf("token L_PARENTHESIS: %s\n", yytext); return L_PAREN; }
+")"                     { printf("token R_PARENTHESIS: %s\n", yytext); return R_PAREN; }
 ","                     { printf("token COMMA: %s\n", yytext); return COMMA; }
 "["                     { printf("token L_BRACKET: %s\n", yytext); return L_BRACKET; }
 "]"                     { printf("token R_BRACKET: %s\n", yytext); return R_BRACKET; }

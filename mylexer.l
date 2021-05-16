@@ -1,9 +1,10 @@
 %{
 #include <stdio.h>    
+#include <string.h>
 #include "myanalyzer.tab.h"
 #include "helperFiles/cgen.h"
 
-int lineNum = 1;
+int line_num = 1;
 %}
 
 ID      [a-zA-Z][0-9a-zA-Z_]*
@@ -13,7 +14,6 @@ DECIMAL ("."{NUMBER})|({NUMBER}("."{NUMBER}?)?)
 REAL    {DECIMAL}([eE][+-]?{NUMBER})?
 STRING  \"[^\"\n]*\"
 
-DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 
 %x comment
 
@@ -62,45 +62,35 @@ DELIMS  {"("|")"|"["|"]"|"{"|"}"}
 "["                     { printf("token L_BRACKET: %s\n", yytext); return L_BRACKET; }
 "]"                     { printf("token R_BRACKET: %s\n", yytext); return R_BRACKET; }
 "{"                     { printf("token L_CURLY_BRACKET: %s\n", yytext); return L_CURLY_BRACKET; }
+"}"                     { printf("token R_CURLY_BRACKET: %s\n", yytext); return R_CURLY_BRACKET; }
 
 
-"readString"            { printf("token RS_FUNC: %s\n", yytext); return FUNC; }  /* Functions */
-"readInt"               { printf("token RI_FUNC: %s\n", yytext); return FUNC; }
-"readReal"              { printf("token RR_FUNC: %s\n", yytext); return FUNC; }
-"writeString"           { printf("token WS_FUNC: %s\n", yytext); return FUNC; }
-"writeInt"              { printf("token WI_FUNC: %s\n", yytext); return FUNC; }
-"writeReal"             { printf("token WR_FUNC: %s\n", yytext); return FUNC; }
+"readString"            { printf("token RS_FUNC: %s\n", yytext); return RS_FUNC; }  /* Functions */
+"readInt"               { printf("token RI_FUNC: %s\n", yytext); return RI_FUNC; }
+"readReal"              { printf("token RR_FUNC: %s\n", yytext); return RR_FUNC; }
+"writeString"           { printf("token WS_FUNC: %s\n", yytext); return WS_FUNC; }
+"writeInt"              { printf("token WI_FUNC: %s\n", yytext); return WI_FUNC; }
+"writeReal"             { printf("token WR_FUNC: %s\n", yytext); return WR_FUNC; }
 
-{STRING}   { printf("token CONST_STRING: %s\n", yytext); return CONST_STRING; }
-{NUMBER}                { printf("token INTEGER: %s\n", yytext); return INTEGER; }
-{REAL}                  { printf("token REAL: %s\n", yytext); return REAL; }
+{STRING}                { printf("token CONST_STRING: %s\n", yytext); return CONST_STRING; yylval.string = strdup(yytext); }
+{NUMBER}                { printf("token INTEGER: %s\n", yytext); return INTEGER; yylval.string = strdup(yytext); }
+{REAL}                  { printf("token REAL: %s\n", yytext); return REAL; yylval.string = strdup(yytext); }
 
-{ID}                    { printf("token IDENTIFIER: %s\n", yytext); return IDENTIFIER; } /* Identifiers */
+{ID}                    { printf("token IDENTIFIER: %s\n", yytext); return IDENTIFIER; yylval.string = strdup(yytext); } /* Identifiers */
 [ \t\r]+                /* White Space */
 
 "//"[^\n]*  		    /* Comments */
 "/*"                    { BEGIN(comment); }
 <comment>[^*\n]*        /* eat anything that's not a '*' */ 
 <comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */ 
-<comment>\n             lineNum++; 
+<comment>\n             line_num++; 
 <comment>"*"+"/"        { BEGIN(INITIAL); }
 
 
-.                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, lineNum, "test"); exit(1); }
-\n                      { lineNum++; }
+.                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, line_num, "test"); exit(1); }
+\n                      { line_num++; }
 
-<<EOF>>                 {return EOF; }
+<<EOF>>                 { exit(0); }
 %%
 
 
-int main() {
-    /* printf("Start\n"); */
-    if (yylex() == EOF){
-        exit(0);
-    }
-    return 0;
-}
-/* 
-\"                      { BEGIN(string); printf("STRING: %s\n", yytext); }
-<string>[^\n]* 
-<string>\"              { BEGIN(INITIAL); printf("STRING: %s\n", yytext); } */

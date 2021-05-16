@@ -75,8 +75,11 @@
 %token WR_FUNC
 
 /* Non-terminal symbols */
-%type <string> program data_type expr statement variable variable1 decl_list decl body
-%type <string> expr1
+%type <string> program data_type expr statement variable constant commands
+%type <string> decl_list decl body
+%type <string> expr1 variable1 const1 param
+%type <string> rs_func ri_func rr_func ws_func wi_func wr_func
+
 
 /* The first symbol */
 %start program
@@ -106,11 +109,11 @@ decl_list: decl_list decl   { $$ = template("%s\n%s", $1, $2); }
 ;
 
 /* Probably function declarations and global vars */
-decl:  {$$="";}
+decl:   { $$ = ""; }
 ;
  
 /* Body of the main fucnction */
-body: { $$="";}
+body:   { $$ = ""; }
 ;
 
 expr: expr1                 { $$ = $1; } 
@@ -149,6 +152,7 @@ data_type: KEYWORD_INT      { $$ = template("int"); }
          | L_BRACKET R_BRACKET data_type        { $$ = template("[] %s", $3); }
 ;
 
+/* var declaration */
 variable: KEYWORD_VAR variable1 data_type SEMICOLON {$$ = template("%s %s;", $3, $2);}
 ;
 
@@ -158,11 +162,52 @@ variable1: IDENTIFIER ASSIGN_OP expr    { $$ = template("%s = %s", $1, $3); }
          /* | IDENTIFIER ASSIGN_OP CONST_STRING */
 ;
 
-/* statement: L_CURLY_BRACKET statement R_CURLY_BRACKET
+/* const declaration */
+constant: KEYWORD_VAR variable1 data_type SEMICOLON {$$ = template("%s %s;", $3, $2);}
+;
+
+const1: IDENTIFIER ASSIGN_OP expr    { $$ = template("%s = %s", $1, $3); }
+      /* | IDENTIFIER ASSIGN_OP CONST_STRING */
+;
+
+            // needs work 
+function: KEYWORD_FUNC IDENTIFIER KEYWORD_BEGIN 
+          L_PAREN param R_PAREN L_CURLY_BRACKET R_CURLY_BRACKET body
+        { }
+;
+
+/* function parameters */
+param: IDENTIFIER data_type                 { $$ = template("%s %s", $2, $1); }
+     | param COMMA IDENTIFIER data_type     { $$ = template("%s %s", $2, $1); }
+;
+
+/* special fucntions */     // needs work
+rs_func: RS_FUNC L_PAREN R_PAREN SEMICOLON
+;
+
+ri_func: RI_FUNC L_PAREN R_PAREN SEMICOLON
+;
+
+rr_func: RR_FUNC L_PAREN R_PAREN SEMICOLON
+;
+
+ws_func: WS_FUNC L_PAREN IDENTIFIER R_PAREN SEMICOLON 
+       | WS_FUNC L_PAREN CONST_STRING R_PAREN SEMICOLON 
+;
+
+wi_func: WI_FUNC L_PAREN IDENTIFIER R_PAREN SEMICOLON 
+       | WI_FUNC L_PAREN INTEGER R_PAREN SEMICOLON 
+;
+
+wr_func: WR_FUNC L_PAREN IDENTIFIER R_PAREN SEMICOLON 
+       | WR_FUNC L_PAREN REAL R_PAREN SEMICOLON 
+;
+
+statement: L_CURLY_BRACKET statement R_CURLY_BRACKET
           | KEYWORD_IF L_PAREN expr R_PAREN statement
           | KEYWORD_WHILE L_PAREN expr R_PAREN statement
           | KEYWORD_RETURN expr SEMICOLON
-; */
+;
 
 
 

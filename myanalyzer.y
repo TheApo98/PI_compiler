@@ -67,18 +67,18 @@
 %token <string> IDENTIFIER  
 
 /* Special functions */
-%token RS_FUNC
-%token RI_FUNC
-%token RR_FUNC
-%token WS_FUNC
-%token WI_FUNC
-%token WR_FUNC
+%token RS_FUNCT
+%token RI_FUNCT
+%token RR_FUNCT
+%token WS_FUNCT
+%token WI_FUNCT
+%token WR_FUNCT
 
 /* Non-terminal symbols */
-%type <string> program data_type expr statement variable constant commands
-%type <string> decl_list decl body
-%type <string> expr1 variable1 const1 param
-%type <string> rs_func ri_func rr_func ws_func wi_func wr_func
+%type <string> program data_type expr statement var_decl const_decl 
+%type <string> decl_list decl body func_decl
+%type <string> expr1 var_decl1 var_decl2 const1 param
+/* %type <string> special_func rs_func ri_func rr_func ws_func wi_func wr_func */
 
 
 /* The first symbol */
@@ -88,12 +88,10 @@
 %%
 
 program: decl_list KEYWORD_FUNC KEYWORD_BEGIN 
-         L_PAREN R_PAREN L_CURLY_BRACKET R_CURLY_BRACKET body  { 
-
- /* We have a successful parse! 
+         L_PAREN R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET { 
+  /* We have a successful parse! 
     Check for any errors and generate output. 
   */
-  
   if (yyerror_count == 0) {
     // include the pilib.h file
     puts(c_prologue); 
@@ -108,17 +106,23 @@ decl_list: decl_list decl   { $$ = template("%s\n%s", $1, $2); }
          | decl             { $$ = $1; }
 ;
 
-/* Probably function declarations and global vars */
-decl:   { $$ = ""; }
+/* Function declarations and global vars */
+decl: var_decl    { $$ = $1; }
+    | const_decl  { $$ = $1; }
+    | func_decl   { $$ = $1; }
 ;
  
 /* Body of the main fucnction */
-body:   { $$ = ""; }
+body: var_decl      { $$ = $1; }
+    | const_decl    { $$ = $1; }
+    | func_decl     { $$ = $1; }
+    | statement     { $$ = $1; }
+    /* | special_func  { $$ = $1; } */
 ;
 
-expr: expr1                 { $$ = $1; } 
-    | MINUS_OP expr         { $$ = template("-%s", $2); }    //not sure
-    | L_PAREN expr R_PAREN  { $$ = template("(%s)", $2); }
+expr: expr1                  { $$ = $1; } 
+    | MINUS_OP expr          { $$ = template("-%s", $2); }    //not sure
+    | L_PAREN expr R_PAREN   { $$ = template("(%s)", $2); }
     | expr1 PLUS_OP expr     { $$ = template("%s + %s", $1, $3); }
     | expr1 MINUS_OP expr    { $$ = template("%s - %s", $1, $3); }
     | expr1 MULT_OP expr     { $$ = template("%s * %s", $1, $3); }
@@ -127,7 +131,8 @@ expr: expr1                 { $$ = $1; }
     | expr1 POWER_OP expr    { $$ = template("%s ** %s", $1, $3); }
     | expr1 L_BRACKET expr R_BRACKET { $$ = template("%s[%s]", $1, $3); }
     /* func call */
-    | NOT_LOGIC_OP expr         { $$ = template("!%s", $2); }
+    /* special func */
+    | NOT_LOGIC_OP expr          { $$ = template("!%s", $2); }
     | expr1 AND_LOGIC_OP expr    { $$ = template("%s && %s", $1, $3); }
     | expr1 OR_LOGIC_OP expr     { $$ = template("%s || %s", $1, $3); }
     | expr1 EQUALS_OP expr       { $$ = template("%s == %s", $1, $3); }
@@ -136,6 +141,8 @@ expr: expr1                 { $$ = $1; }
     | expr1 LESS_EQ_OP expr      { $$ = template("%s <= %s", $1, $3); }
     | expr1 GREATER_OP expr      { $$ = template("%s > %s", $1, $3); }
     | expr1 LESS_OP expr         { $$ = template("%s < %s", $1, $3); }
+    | KEYWORD_TRUE               { $$ = "1"; }
+    | KEYWORD_FALSE              { $$ = "0"; }
 ;
 
 expr1: IDENTIFIER    { $$ = $1; } 
@@ -153,60 +160,75 @@ data_type: KEYWORD_INT      { $$ = template("int"); }
 ;
 
 /* var declaration */
-variable: KEYWORD_VAR variable1 data_type SEMICOLON {$$ = template("%s %s;", $3, $2);}
+var_decl: KEYWORD_VAR var_decl2 data_type SEMICOLON {$$ = template("%s %s;", $3, $2);}
 ;
 
-variable1: IDENTIFIER ASSIGN_OP expr    { $$ = template("%s = %s", $1, $3); }
+var_decl2: var_decl1 COMMA var_decl1    { $$ = template("%s , %s", $1, $3); }
+         | var_decl { $$ = $1; }
+;
+
+var_decl1: IDENTIFIER ASSIGN_OP expr    { $$ = template("%s = %s", $1, $3); }
          | IDENTIFIER                   { $$ = $1; }
-         | variable1 COMMA variable1    { $$ = template("%s , %s", $1, $3); }
          /* | IDENTIFIER ASSIGN_OP CONST_STRING */
 ;
 
 /* const declaration */
-constant: KEYWORD_VAR variable1 data_type SEMICOLON {$$ = template("%s %s;", $3, $2);}
+const_decl: KEYWORD_VAR const1 data_type SEMICOLON {$$ = template("%s %s;", $3, $2);}
 ;
 
 const1: IDENTIFIER ASSIGN_OP expr    { $$ = template("%s = %s", $1, $3); }
       /* | IDENTIFIER ASSIGN_OP CONST_STRING */
 ;
 
+/* function declaration */
+func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
+           { $$ = template("%s %s(%s);", $6, $2, $4); }
+;
+
             // needs work 
-function: KEYWORD_FUNC IDENTIFIER KEYWORD_BEGIN 
-          L_PAREN param R_PAREN L_CURLY_BRACKET R_CURLY_BRACKET body
-        { }
+function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET 
+          { }
 ;
 
 /* function parameters */
 param: IDENTIFIER data_type                 { $$ = template("%s %s", $2, $1); }
-     | param COMMA IDENTIFIER data_type     { $$ = template("%s %s", $2, $1); }
+     | param COMMA IDENTIFIER data_type     { $$ = template("%s, %s %s", $1, $4, $3); }
 ;
 
 /* special fucntions */     // needs work
-rs_func: RS_FUNC L_PAREN R_PAREN SEMICOLON
+/* special_func: rs_func { $$ = $1; }
+            | ri_func { $$ = $1; }
+            | rr_func { $$ = $1; }
+            | ws_func { $$ = $1; }
+            | wi_func { $$ = $1; }
+            | wr_func { $$ = $1; }
 ;
 
-ri_func: RI_FUNC L_PAREN R_PAREN SEMICOLON
+rs_func: RS_FUNCT L_PAREN R_PAREN SEMICOLON
 ;
 
-rr_func: RR_FUNC L_PAREN R_PAREN SEMICOLON
+ri_func: RI_FUNCT L_PAREN R_PAREN SEMICOLON
 ;
 
-ws_func: WS_FUNC L_PAREN IDENTIFIER R_PAREN SEMICOLON 
-       | WS_FUNC L_PAREN CONST_STRING R_PAREN SEMICOLON 
+rr_func: RR_FUNCT L_PAREN R_PAREN SEMICOLON
 ;
 
-wi_func: WI_FUNC L_PAREN IDENTIFIER R_PAREN SEMICOLON 
-       | WI_FUNC L_PAREN INTEGER R_PAREN SEMICOLON 
+ws_func: WS_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON 
+       | WS_FUNCT L_PAREN CONST_STRING R_PAREN SEMICOLON 
 ;
 
-wr_func: WR_FUNC L_PAREN IDENTIFIER R_PAREN SEMICOLON 
-       | WR_FUNC L_PAREN REAL R_PAREN SEMICOLON 
+wi_func: WI_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON 
+       | WI_FUNCT L_PAREN INTEGER R_PAREN SEMICOLON 
 ;
 
-statement: L_CURLY_BRACKET statement R_CURLY_BRACKET
-          | KEYWORD_IF L_PAREN expr R_PAREN statement
-          | KEYWORD_WHILE L_PAREN expr R_PAREN statement
-          | KEYWORD_RETURN expr SEMICOLON
+wr_func: WR_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON 
+       | WR_FUNCT L_PAREN REAL R_PAREN SEMICOLON 
+; */
+
+statement: L_CURLY_BRACKET statement R_CURLY_BRACKET      { $$ = template("{%s}", $2); }
+          | KEYWORD_IF L_PAREN expr R_PAREN statement     { $$ = template("if(%s)\n %s\n", $3, $5); }
+          | KEYWORD_WHILE L_PAREN expr R_PAREN statement  { $$ = template("while(%s)\n %s\n", $3, $5); }
+          | KEYWORD_RETURN expr SEMICOLON                 { $$ = template("return %s;\n"); }
 ;
 
 

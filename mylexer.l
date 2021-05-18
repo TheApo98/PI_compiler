@@ -65,12 +65,12 @@ STRING  \"[^\"\n]*\"
 "}"                     { printf("token R_CURLY_BRACKET: %s\n", yytext); return R_CURLY_BRACKET; }
 
 
-"readString"            { printf("token RS_FUNC: %s\n", yytext); return RS_FUNC; }  /* Functions */
-"readInt"               { printf("token RI_FUNC: %s\n", yytext); return RI_FUNC; }
-"readReal"              { printf("token RR_FUNC: %s\n", yytext); return RR_FUNC; }
-"writeString"           { printf("token WS_FUNC: %s\n", yytext); return WS_FUNC; }
-"writeInt"              { printf("token WI_FUNC: %s\n", yytext); return WI_FUNC; }
-"writeReal"             { printf("token WR_FUNC: %s\n", yytext); return WR_FUNC; }
+"readString"            { printf("token RS_FUNC: %s\n", yytext); return RS_FUNCT; }  /* Functions */
+"readInt"               { printf("token RI_FUNC: %s\n", yytext); return RI_FUNCT; }
+"readReal"              { printf("token RR_FUNC: %s\n", yytext); return RR_FUNCT; }
+"writeString"           { printf("token WS_FUNC: %s\n", yytext); return WS_FUNCT; }
+"writeInt"              { printf("token WI_FUNC: %s\n", yytext); return WI_FUNCT; }
+"writeReal"             { printf("token WR_FUNC: %s\n", yytext); return WR_FUNCT; }
 
 {STRING}                { printf("token CONST_STRING: %s\n", yytext); return CONST_STRING; yylval.string = strdup(yytext); }
 {NUMBER}                { printf("token INTEGER: %s\n", yytext); return INTEGER; yylval.string = strdup(yytext); }

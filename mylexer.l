@@ -72,11 +72,11 @@ STRING  \"[^\"\n]*\"
 "writeInt"              { printf("token WI_FUNC: %s\n", yytext); return WI_FUNCT; }
 "writeReal"             { printf("token WR_FUNC: %s\n", yytext); return WR_FUNCT; }
 
-{STRING}                { printf("token CONST_STRING: %s\n", yytext); return CONST_STRING; yylval.string = strdup(yytext); }
-{NUMBER}                { printf("token INTEGER: %s\n", yytext); return INTEGER; yylval.string = strdup(yytext); }
-{REAL}                  { printf("token REAL: %s\n", yytext); return REAL; yylval.string = strdup(yytext); }
+{STRING}                { printf("token CONST_STRING: %s\n", yytext); yylval.string = strdup(yytext); return CONST_STRING; }
+{NUMBER}                { printf("token INTEGER: %s\n", yytext); yylval.string = strdup(yytext); return INTEGER; }
+{REAL}                  { printf("token REAL: %s\n", yytext); yylval.string = strdup(yytext); return REAL; }
 
-{ID}                    { printf("token IDENTIFIER: %s\n", yytext); return IDENTIFIER; yylval.string = strdup(yytext); } /* Identifiers */
+{ID}                    { printf("token IDENTIFIER: %s\n", yytext); yylval.string = strdup(yytext); return IDENTIFIER; } /* Identifiers */
 [ \t\r]+                /* White Space */
 
 "//"[^\n]*  		    /* Comments */

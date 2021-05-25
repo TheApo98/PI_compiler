@@ -76,14 +76,14 @@
 
 /* Non-terminal symbols */
 %type <string> program data_type expr statement var_decl const_decl function
-%type <string> decl_list decl body func_decl
-%type <string> expr1 var_decl1 var_decl2 const1 param
+%type <string> decl_list decl body func_decl array
+%type <string> expr1 var_decl1 var_decl2 const1 param param1
 %type <string> if_stmt for_stmt while_stmt return_stmt simple_stmt func_stmt func_params assign_stmt
 /* %type <string> special_func rs_func ri_func rr_func ws_func wi_func wr_func */
 
 
 /* The first symbol */
-%start param
+%start func_decl
 
 /* Rules */
 %%
@@ -96,6 +96,7 @@ program: decl_list KEYWORD_FUNC KEYWORD_BEGIN
   if (yyerror_count == 0) {
     // include the pilib.h file
     puts(c_prologue); 
+    printf("typedef char* string");
     printf("/* program */ \n\n");
     printf("%s\n\n", $1);
     printf("int main() {\n%s\n} \n", $7);
@@ -122,8 +123,8 @@ body: var_decl      { $$ = $1; }
     /* | special_func  { $$ = $1; } */
 ;
 
-expr: /* expr1                  { $$ = $1; }  */
-     MINUS_OP expr          { $$ = template("-%s", $2); }    //not sure
+expr: expr1                  { $$ = $1; } 
+    | MINUS_OP expr          { $$ = template("-%s", $2); }    //not sure
     | L_PAREN expr R_PAREN   { $$ = template("(%s)", $2); }
     | expr1 PLUS_OP expr     { $$ = template("%s + %s", $1, $3); }
     | expr1 MINUS_OP expr    { $$ = template("%s - %s", $1, $3); }
@@ -131,7 +132,7 @@ expr: /* expr1                  { $$ = $1; }  */
     | expr1 DIV_OP expr      { $$ = template("%s / %s", $1, $3); }
     | expr1 MOD_OP expr      { $$ = template("%s \% %s", $1, $3); }
     | expr1 POWER_OP expr    { $$ = template("%s ** %s", $1, $3); }
-    | expr1 L_BRACKET expr R_BRACKET { $$ = template("%s[%s]", $1, $3); }
+    | IDENTIFIER L_BRACKET expr R_BRACKET { $$ = template("%s[%s]", $1, $3); }
     | func_stmt              { $$ = $1; }
     /* special func */
     | NOT_LOGIC_OP expr          { $$ = template("!%s", $2); }
@@ -155,36 +156,43 @@ expr1: IDENTIFIER    { $$ = $1; }
 
 data_type: KEYWORD_INT      { $$ = template("int"); }
          | KEYWORD_REAL     { $$ = template("double"); }
-         | KEYWORD_STRING   { $$ = template("char*"); }
+         | KEYWORD_STRING   { $$ = template("string"); }   //typedef at the start of .c file
          | KEYWORD_BOOL     { $$ = template("int"); }
-         | L_BRACKET expr R_BRACKET data_type   { $$ = template("[%s] %s", $2, $4); }    //not sure
-         | L_BRACKET R_BRACKET data_type        { $$ = template("[] %s", $3); }
 ;
+
+array: IDENTIFIER L_BRACKET expr R_BRACKET   { $$ = template("%s[%s]", $1, $3); }    //not sure
+     | IDENTIFIER L_BRACKET R_BRACKET        { $$ = template("*%s", $1); }
+;
+
+/* array: IDENTIFIER L_BRACKET expr R_BRACKET data_type   { $$ = template("%s %s[%s]", $5, $1, $3); }    //not sure
+     | IDENTIFIER L_BRACKET R_BRACKET data_type        { $$ = template("%s %s[]", $4, $1); }
+; */
 
 /* var declaration */
-var_decl: KEYWORD_VAR var_decl2 data_type SEMICOLON {$$ = template("%s %s;", $3, $2);}
+var_decl: KEYWORD_VAR var_decl2 data_type SEMICOLON {$$ = template("%s %s;", $3, $2); }
 ;
 
-var_decl2: var_decl1 COMMA var_decl1    { $$ = template("%s , %s", $1, $3); }
-         | var_decl { $$ = $1; }
+var_decl2: var_decl1 COMMA var_decl2    { $$ = template("%s , %s", $1, $3); }
+         | var_decl1 { $$ = $1; }
 ;
 
-var_decl1: IDENTIFIER ASSIGN_OP expr    { $$ = template("%s = %s", $1, $3); }
-         | IDENTIFIER                   { $$ = $1; }
-         /* | IDENTIFIER ASSIGN_OP CONST_STRING */
+var_decl1: IDENTIFIER ASSIGN_OP expr            { $$ = template("%s = %s", $1, $3); }
+         | IDENTIFIER                           { $$ = $1; }
+         | IDENTIFIER ASSIGN_OP CONST_STRING    { $$ = template("%s = %s", $1, $3); }
+         | array                                { $$ = $1; }
 ;
 
 /* const declaration */
-const_decl: KEYWORD_CONST const1 data_type SEMICOLON {$$ = template("%s %s;\n", $3, $2);}
+const_decl: KEYWORD_CONST const1 data_type SEMICOLON { $$ = template("const %s %s;\n", $3, $2); }
 ;
 
-const1: IDENTIFIER ASSIGN_OP expr    { $$ = template("%s = %s", $1, $3); }
-      /* | IDENTIFIER ASSIGN_OP CONST_STRING */
+const1: IDENTIFIER ASSIGN_OP expr           { $$ = template("%s = %s", $1, $3); }
+      | IDENTIFIER ASSIGN_OP CONST_STRING   { $$ = template("%s = %s", $1, $3); }
 ;
 
 /* function declaration */
 func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
-           { $$ = template("%s %s(%s);", $6, $2, $4); }
+           { $$ = template("%s %s(%s);", $6, $2, $4); printf("\n%s\n", $$); }
 ;
 
 /* function construction  */    //needs work
@@ -193,8 +201,12 @@ function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type L_CURLY_BRACKE
 ;
 
 /* function declaration parameters */
-param: IDENTIFIER data_type                 { $$ = template("%s %s", $2, $1); printf("\n%s\n", $$); }
-     | param COMMA IDENTIFIER data_type     { $$ = template("%s, %s %s", $1, $4, $3); printf("\n%s\n", $$); }
+param1: IDENTIFIER data_type                 { $$ = template("%s %s", $2, $1); }
+      | array data_type                      { $$ = template("%s %s", $2, $1); }
+;
+
+param: param1 COMMA param     { $$ = template("%s, %s", $1, $3); }
+     | param1                  { $$ = $1; }
 ;
 
 /* special fucntions */     // needs work

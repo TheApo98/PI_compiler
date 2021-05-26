@@ -77,13 +77,13 @@
 /* Non-terminal symbols */
 %type <string> program data_type expr statement var_decl const_decl function
 %type <string> decl_list decl body func_decl array
-%type <string> expr1 var_decl1 var_decl2 const1 param param1
+%type <string> expr1 var_decl1 var_decl2 const1 param param1 statement1
 %type <string> if_stmt for_stmt while_stmt return_stmt simple_stmt func_stmt func_params assign_stmt
 /* %type <string> special_func rs_func ri_func rr_func ws_func wi_func wr_func */
 
 
 /* The first symbol */
-%start func_decl
+%start statement
 
 /* Rules */
 %%
@@ -240,9 +240,12 @@ wr_func: WR_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON
        | WR_FUNCT L_PAREN REAL R_PAREN SEMICOLON 
 ; */
 
-statement: L_CURLY_BRACKET statement R_CURLY_BRACKET      { $$ = template("{%s}", $2); printf("\n%s\n", $$); }
+statement: L_CURLY_BRACKET statement1 R_CURLY_BRACKET      { $$ = template("{\n%s\n}", $2); }
          | simple_stmt                  { $$ = $1; printf("\n%s\n", $$); }
-         /* | simple_stmt simple_stmt      { $$ = template("%s\n%s", $1, $2); } */
+;
+
+statement1: statement1 simple_stmt      { $$ = template("%s\n%s", $1, $2); }
+          | simple_stmt                 { $$ = $1; printf("\n%s\n", $$); }
 ;
 
 simple_stmt: KEYWORD_CONTINUE SEMICOLON   { $$ = template("continue;\n"); }
@@ -255,10 +258,12 @@ simple_stmt: KEYWORD_CONTINUE SEMICOLON   { $$ = template("continue;\n"); }
            | return_stmt                  { $$ = $1; }
 ;
 
-assign_stmt: IDENTIFIER ASSIGN_OP expr      { $$ = template("%s = %s", $1, $3); }
+assign_stmt: IDENTIFIER ASSIGN_OP expr          { $$ = template("%s = %s", $1, $3); }
+           | IDENTIFIER ASSIGN_OP CONST_STRING  { $$ = template("%s = %s", $1, $3); }
 ;
 
-if_stmt: KEYWORD_IF L_PAREN expr R_PAREN statement      { $$ = template("if(%s)\n%s\n", $3, $5); }
+if_stmt: KEYWORD_IF L_PAREN expr R_PAREN statement          { $$ = template("if(%s)\n%s\n", $3, $5); }
+       /* | KEYWORD_IF L_PAREN expr R_PAREN statement if_stmt  { $$ = template("if(%s)\n%s\n%s", $3, $5, $6); } */
        /* | KEYWORD_ELSE if_stmt                           { $$ = template("else %s", $2); } */
        | KEYWORD_ELSE statement                         { $$ = template("else %s", $2); }
 ;

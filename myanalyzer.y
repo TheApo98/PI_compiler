@@ -192,7 +192,7 @@ const1: IDENTIFIER ASSIGN_OP expr           { $$ = template("%s = %s", $1, $3); 
 
 /* function declaration */
 func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
-           { $$ = template("%s %s(%s);", $6, $2, $4); printf("\n%s\n", $$); }
+           { $$ = template("%s %s(%s);", $6, $2, $4);  printf("\n%s\n", $$);}
 ;
 
 /* function construction  */    //needs work
@@ -206,7 +206,8 @@ param1: IDENTIFIER data_type                 { $$ = template("%s %s", $2, $1); }
 ;
 
 param: param1 COMMA param     { $$ = template("%s, %s", $1, $3); }
-     | param1                  { $$ = $1; }
+     | param1                 { $$ = $1; }
+     | %empty                 { $$ = ""; }
 ;
 
 /* special fucntions */     // needs work
@@ -239,19 +240,19 @@ wr_func: WR_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON
        | WR_FUNCT L_PAREN REAL R_PAREN SEMICOLON 
 ; */
 
-statement: L_CURLY_BRACKET statement R_CURLY_BRACKET      { $$ = template("{%s}", $2); }
-         | simple_stmt                  { $$ = $1; }
+statement: L_CURLY_BRACKET statement R_CURLY_BRACKET      { $$ = template("{%s}", $2); printf("\n%s\n", $$); }
+         | simple_stmt                  { $$ = $1; printf("\n%s\n", $$); }
          /* | simple_stmt simple_stmt      { $$ = template("%s\n%s", $1, $2); } */
 ;
 
-simple_stmt: KEYWORD_CONTINUE   { $$ = template("continue;\n"); }
-           | KEYWORD_BREAK      { $$ = template("break;\n"); }
-           | assign_stmt        { $$ = $1; }
-           | if_stmt            { $$ = $1; }
-           | for_stmt           { $$ = $1; }
-           | while_stmt         { $$ = $1; }
-           | func_stmt          { $$ = template("%s;", $1); }
-           | return_stmt        { $$ = $1; }
+simple_stmt: KEYWORD_CONTINUE SEMICOLON   { $$ = template("continue;\n"); }
+           | KEYWORD_BREAK SEMICOLON      { $$ = template("break;\n"); }
+           | assign_stmt SEMICOLON        { $$ = template("%s;", $1); }
+           | if_stmt                      { $$ = $1; }
+           | for_stmt                     { $$ = $1; }
+           | while_stmt                   { $$ = $1; }
+           | func_stmt SEMICOLON          { $$ = template("%s;", $1); }
+           | return_stmt                  { $$ = $1; }
 ;
 
 assign_stmt: IDENTIFIER ASSIGN_OP expr      { $$ = template("%s = %s", $1, $3); }
@@ -269,14 +270,16 @@ for_stmt: KEYWORD_FOR L_PAREN assign_stmt SEMICOLON expr SEMICOLON assign_stmt R
 while_stmt: KEYWORD_WHILE L_PAREN expr R_PAREN statement    { $$ = template("while(%s)\n%s\n", $3, $5); }
 ;
 
-func_stmt: IDENTIFIER L_PAREN func_params R_PAREN SEMICOLON { $$ = template("%s(%s)", $1, $3); } 
+func_stmt: IDENTIFIER L_PAREN func_params R_PAREN { $$ = template("%s(%s)", $1, $3); } 
 ;
 
-func_params: expr COMMA expr    { $$ = template("%s, %s", $1, $3); }
-           | expr               { $$ = $1; }
+func_params: func_params COMMA expr    { $$ = template("%s, %s", $1, $3); }
+           | expr                      { $$ = $1; }
+           | CONST_STRING              { $$ = $1; }
+           | %empty                    { $$ = ""; }
 
 return_stmt: KEYWORD_RETURN expr SEMICOLON   { $$ = template("return %s;\n", $2); }
-           | KEYWORD_RETURN expr             { $$ = template("return;\n"); }
+           | KEYWORD_RETURN SEMICOLON        { $$ = template("return;\n"); }
 ;
 
 

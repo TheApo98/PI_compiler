@@ -76,14 +76,14 @@
 
 /* Non-terminal symbols */
 %type <string> program data_type expr statement var_decl const_decl function
-%type <string> decl_list decl body func_decl array
-%type <string> expr1 var_decl1 var_decl2 const1 param param1 statement1 if_stmt1
+%type <string> decl_list decl body func_decl array local_decl body_return local_decl1
+%type <string> expr1 var_decl1 var_decl2 const1 param param1 statement1 statements if_stmt1
 %type <string> if_stmt for_stmt while_stmt return_stmt simple_stmt func_stmt func_params assign_stmt
 %type <string> special_rd_func special_wt_func rs_func ri_func rr_func ws_func wi_func wr_func
 
 
 /* The first symbol */
-%start statement
+%start program
 
 /* Rules */
 %%
@@ -108,19 +108,35 @@ decl_list: decl_list decl   { $$ = template("%s\n%s", $1, $2); }
          | decl             { $$ = $1; }
 ;
 
-/* Function declarations and global vars */
+/* Function declarations and global vars {before begin()} */
 decl: var_decl    { $$ = $1; }
     | const_decl  { $$ = $1; }
     | func_decl   { $$ = $1; }
     | function    { $$ = $1; }
 ;
- 
-/* Body of the main fucnction */
-body: var_decl      { $$ = $1; }
-    | const_decl    { $$ = $1; }
-    | func_decl     { $$ = $1; }
-    | statement     { $$ = $1; }
-    /* | special_func  { $$ = $1; } */
+
+// Both need work
+
+/* Body of the main and other void function */
+body: local_decl statements      { $$ = template("%s\n%s", $1, $2); }
+;
+
+/* Body of non-void function */
+body_return: local_decl statements return_stmt
+           { $$ = template("%s\n%s\n%s", $1, $2, $3); }  
+;
+
+statements: statements statement    { $$ = template("%s\n%s", $1, $2); }
+          | statement               { $$ = $1; }  
+;
+
+local_decl1: var_decl      { $$ = $1; }
+           | const_decl    { $$ = $1; }
+;
+
+local_decl: local_decl local_decl1  { $$ = template("%s\n%s", $1, $2); }
+          | local_decl1             { $$ = $1; }  
+          /* | %empty        { $$ = ""; } */
 ;
 
 expr: expr1                  { $$ = $1; } 
@@ -196,8 +212,10 @@ func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
 ;
 
 /* function construction  */    //needs work
-function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type L_CURLY_BRACKET body R_CURLY_BRACKET 
-          { $$ = template("%s %s(%s) {\n%s}\n", $6, $2, $4, $8); }
+function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type L_CURLY_BRACKET body_return R_CURLY_BRACKET 
+          { $$ = template("%s %s(%s) {\n%s\n}\n", $6, $2, $4, $8);printf("\n%s\n", $$);  }
+        | KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET 
+          { $$ = template("void %s(%s) {\n%s\n}\n", $2, $4, $7);printf("\n%s\n", $$);  }
 ;
 
 /* function declaration parameters */
@@ -243,7 +261,7 @@ wr_func: WR_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON  { $$ = template("writeRe
 ;
 
 statement: L_CURLY_BRACKET statement1 R_CURLY_BRACKET      { $$ = template("{\n%s\n}", $2); }
-         | simple_stmt                  { $$ = $1; printf("\n%s\n", $$); }
+         | simple_stmt                  { $$ = $1; }
          /* | %empty                       { $$ = ""; } */
 ;
 
@@ -258,6 +276,8 @@ simple_stmt: KEYWORD_CONTINUE SEMICOLON   { $$ = template("continue;"); }
            | for_stmt                     { $$ = $1; }
            | while_stmt                   { $$ = $1; }
            | func_stmt SEMICOLON          { $$ = template("%s;", $1); }
+           | special_rd_func SEMICOLON    { $$ = template("%s;", $1); }
+           | special_wt_func              { $$ = $1; }
            | return_stmt                  { $$ = $1; }
 ;
 

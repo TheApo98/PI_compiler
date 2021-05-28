@@ -77,7 +77,7 @@
 /* Non-terminal symbols */
 %type <string> program data_type expr statement var_decl const_decl function
 %type <string> decl_list decl body func_decl array local_decl body_return local_decl1
-%type <string> expr1 var_decl1 var_decl2 const1 param param1 statement1 statements if_stmt1
+%type <string> var_decl1 var_decl2 const1 param param1 statement1 statements 
 %type <string> if_stmt for_stmt while_stmt return_stmt simple_stmt func_stmt func_params assign_stmt
 %type <string> special_rd_func special_wt_func rs_func ri_func rr_func ws_func wi_func wr_func
 
@@ -96,10 +96,21 @@ program: decl_list KEYWORD_FUNC KEYWORD_BEGIN
   if (yyerror_count == 0) {
     // include the pilib.h file
     puts(c_prologue); 
-    printf("typedef char* string");
-    printf("/* program */ \n\n");
+    printf("typedef char* string;\n");
     printf("%s\n\n", $1);
     printf("int main() {\n%s\n} \n", $7);
+  }
+}
+       | KEYWORD_FUNC KEYWORD_BEGIN 
+         L_PAREN R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET { 
+  /* We have a successful parse! 
+    Check for any errors and generate output. 
+  */
+  if (yyerror_count == 0) {
+    // include the pilib.h file
+    puts(c_prologue); 
+    printf("typedef char* string;\n\n");
+    printf("int main() {\n%s\n} \n", $6);
   }
 }
 ;
@@ -118,13 +129,18 @@ decl: var_decl    { $$ = $1; }
 // Both need work
 
 /* Body of the main and other void function */
-body: local_decl statements      { $$ = template("%s\n%s", $1, $2); }
+body: local_decl statements   { $$ = template("%s\n%s", $1, $2); }
+    | statements              { $$ = $1; }
 ;
 
 /* Body of non-void function */
-body_return: local_decl statements return_stmt
-           { $$ = template("%s\n%s\n%s", $1, $2, $3); }  
+body_return: local_decl statements   { $$ = template("%s\n%s", $1, $2); }  
+           | statements              { $$ = $1; }  
 ;
+
+/* body_return: local_decl statements return_stmt  { $$ = template("%s\n%s\n%s", $1, $2, $3); }  
+           | statements return_stmt             { $$ = template("%s\n%s", $1, $2); }  
+; */
 
 statements: statements statement    { $$ = template("%s\n%s", $1, $2); }
           | statement               { $$ = $1; }  
@@ -136,37 +152,33 @@ local_decl1: var_decl      { $$ = $1; }
 
 local_decl: local_decl local_decl1  { $$ = template("%s\n%s", $1, $2); }
           | local_decl1             { $$ = $1; }  
-          /* | %empty        { $$ = ""; } */
 ;
 
-expr: expr1                  { $$ = $1; } 
-    | MINUS_OP expr          { $$ = template("-%s", $2); }    //not sure
+expr: MINUS_OP expr          { $$ = template("-%s", $2); }    //not sure
     | L_PAREN expr R_PAREN   { $$ = template("(%s)", $2); }
-    | expr1 PLUS_OP expr     { $$ = template("%s + %s", $1, $3); }
-    | expr1 MINUS_OP expr    { $$ = template("%s - %s", $1, $3); }
-    | expr1 MULT_OP expr     { $$ = template("%s * %s", $1, $3); }
-    | expr1 DIV_OP expr      { $$ = template("%s / %s", $1, $3); }
-    | expr1 MOD_OP expr      { $$ = template("%s \% %s", $1, $3); }
-    | expr1 POWER_OP expr    { $$ = template("%s ** %s", $1, $3); }
+    | expr PLUS_OP expr     { $$ = template("%s + %s", $1, $3); }
+    | expr MINUS_OP expr    { $$ = template("%s - %s", $1, $3); }
+    | expr MULT_OP expr     { $$ = template("%s * %s", $1, $3); }
+    | expr DIV_OP expr      { $$ = template("%s / %s", $1, $3); }
+    | expr MOD_OP expr      { $$ = template("%s %s %s", $1, "%", $3); }
+    | expr POWER_OP expr    { $$ = template("%s ** %s", $1, $3); }
     | IDENTIFIER L_BRACKET expr R_BRACKET { $$ = template("%s[%s]", $1, $3); }
     | func_stmt                  { $$ = $1; }
     | special_rd_func            { $$ = $1; }
     | NOT_LOGIC_OP expr          { $$ = template("!%s", $2); }
-    | expr1 AND_LOGIC_OP expr    { $$ = template("%s && %s", $1, $3); }
-    | expr1 OR_LOGIC_OP expr     { $$ = template("%s || %s", $1, $3); }
-    | expr1 EQUALS_OP expr       { $$ = template("%s == %s", $1, $3); }
-    | expr1 NOT_EQUALS_OP expr   { $$ = template("%s != %s", $1, $3); }
-    | expr1 GREATER_EQ_OP expr   { $$ = template("%s >= %s", $1, $3); }
-    | expr1 LESS_EQ_OP expr      { $$ = template("%s <= %s", $1, $3); }
-    | expr1 GREATER_OP expr      { $$ = template("%s > %s", $1, $3); }
-    | expr1 LESS_OP expr         { $$ = template("%s < %s", $1, $3); }
+    | expr AND_LOGIC_OP expr    { $$ = template("%s && %s", $1, $3); }
+    | expr OR_LOGIC_OP expr     { $$ = template("%s || %s", $1, $3); }
+    | expr EQUALS_OP expr       { $$ = template("%s == %s", $1, $3); }
+    | expr NOT_EQUALS_OP expr   { $$ = template("%s != %s", $1, $3); }
+    | expr GREATER_EQ_OP expr   { $$ = template("%s >= %s", $1, $3); }
+    | expr LESS_EQ_OP expr      { $$ = template("%s <= %s", $1, $3); }
+    | expr GREATER_OP expr      { $$ = template("%s > %s", $1, $3); }
+    | expr LESS_OP expr         { $$ = template("%s < %s", $1, $3); }
     | KEYWORD_TRUE               { $$ = "1"; }
     | KEYWORD_FALSE              { $$ = "0"; }
-;
-
-expr1: IDENTIFIER    { $$ = $1; } 
-     | INTEGER       { $$ = $1; }
-     | REAL          { $$ = $1; } 
+    | IDENTIFIER    { $$ = $1; } 
+    | INTEGER       { $$ = $1; }
+    | REAL          { $$ = $1; } 
      /* | CONST_STRING          { $$ = $1; } */
 ;
 
@@ -213,9 +225,9 @@ func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
 
 /* function construction  */    //needs work
 function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type L_CURLY_BRACKET body_return R_CURLY_BRACKET 
-          { $$ = template("%s %s(%s) {\n%s\n}\n", $6, $2, $4, $8);printf("\n%s\n", $$);  }
+          { $$ = template("%s %s(%s) {\n%s\n}\n", $6, $2, $4, $8); }
         | KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET 
-          { $$ = template("void %s(%s) {\n%s\n}\n", $2, $4, $7);printf("\n%s\n", $$);  }
+          { $$ = template("void %s(%s) {\n%s\n}\n", $2, $4, $7); }
 ;
 
 /* function declaration parameters */
@@ -228,10 +240,10 @@ param: param1 COMMA param     { $$ = template("%s, %s", $1, $3); }
      | %empty                 { $$ = ""; }
 ;
 
-/* special fucntions */     // needs work
+/* special fucntions */   
 special_rd_func: rs_func { $$ = $1; }
-              | ri_func { $$ = $1; }
-              | rr_func { $$ = $1; }
+               | ri_func { $$ = $1; }
+               | rr_func { $$ = $1; }
 ;
 
 special_wt_func: ws_func { $$ = $1; }

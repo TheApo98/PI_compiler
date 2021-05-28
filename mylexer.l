@@ -90,7 +90,7 @@ STRING  \"[^\"\n]*\"
 .                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, line_num, "test"); exit(1); }
 \n                      { line_num++; }
 
-<<EOF>>                 { exit(0); }
+<<EOF>>                 { return EOF; }
 %%
 
 

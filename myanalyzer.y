@@ -226,6 +226,8 @@ func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
 /* function construction  */    //needs work
 function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type L_CURLY_BRACKET body_return R_CURLY_BRACKET 
           { $$ = template("%s %s(%s) {\n%s\n}\n", $6, $2, $4, $8); }
+        | KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN L_BRACKET R_BRACKET data_type L_CURLY_BRACKET body_return R_CURLY_BRACKET 
+          { $$ = template("%s * %s(%s) {\n%s\n}\n", $8, $2, $4, $10); }
         | KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET 
           { $$ = template("void %s(%s) {\n%s\n}\n", $2, $4, $7); }
 ;

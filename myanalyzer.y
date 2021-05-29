@@ -95,10 +95,22 @@ program: decl_list KEYWORD_FUNC KEYWORD_BEGIN
   */
   if (yyerror_count == 0) {
     // include the pilib.h file
-    puts(c_prologue); 
-    printf("typedef char* string;\n");
-    printf("%s\n\n", $1);
-    printf("int main() {\n%s\n} \n", $7);
+    // puts(c_prologue); 
+    // printf("typedef char* string;\n");
+    // printf("%s\n\n", $1);
+    // printf("int main() {\n%s\n} \n", $7);
+   
+    FILE *fp;
+    fp = fopen("program.c", "w+");
+    fputs(c_prologue, fp);
+    fputs("typedef char* string;\n", fp);
+    fputs($1, fp);
+    fputs("\n\n", fp);
+    fputs("int main() {\n", fp);
+    fputs($7, fp);
+    fputs("\n}\n", fp);
+
+    fclose(fp);
   }
 }
        | KEYWORD_FUNC KEYWORD_BEGIN 
@@ -108,9 +120,18 @@ program: decl_list KEYWORD_FUNC KEYWORD_BEGIN
   */
   if (yyerror_count == 0) {
     // include the pilib.h file
-    puts(c_prologue); 
-    printf("typedef char* string;\n\n");
-    printf("int main() {\n%s\n} \n", $6);
+    // puts(c_prologue); 
+    // printf("typedef char* string;\n\n");
+    // printf("int main() {\n%s\n} \n", $6);
+
+    FILE *fp;
+    fp = fopen("program.c", "w+");
+    fputs(c_prologue, fp);
+    fputs("typedef char* string;\n", fp);
+    fputs("int main() {\n", fp);
+    fputs($6, fp);
+    fputs("\n}\n", fp);
+    fclose(fp);
   }
 }
 ;
@@ -328,9 +349,7 @@ return_stmt: KEYWORD_RETURN expr SEMICOLON   { $$ = template("return %s;", $2); 
 
 
 %%
-int main() {
-    if (yyparse() == 0)
-        printf("Accepted\n");
-    else
-        printf("Rejected\n");
+int main () {
+  if ( yyparse() != 0 )
+    printf("Rejected!\n");
 }

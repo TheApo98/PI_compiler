@@ -358,7 +358,7 @@ return_stmt: KEYWORD_RETURN expr SEMICOLON   { $$ = template("return %s;", $2); 
 %%
 int main () {
   if ( yyparse() == 0 )
-    printf("\nSuccessful compilation!\n");
+    printf("\t\t\tSuccessful compilation!\n\n");
   else
-    printf("\nRejected!\n");
+    printf("\t\t\tRejected!\n\n");
 }

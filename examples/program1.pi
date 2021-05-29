@@ -1,0 +1,41 @@
+var str1 = "String1" , str2 = "String2" string;
+
+// A simple recursive function that counts down from 'num'
+func recurse(a int, num int) {
+    if(a<num){
+        recurse(a+1, num);
+        writeInt(a);
+        writeString(" ");
+    }
+}
+
+func compare(a string, b string) bool {
+    return strcmp(a,b);
+}
+
+func begin() {
+    var num = 0 int;
+    var b bool;
+    var arr[2] string;
+    var i int;
+
+    writeString("Type a number: ");
+    num = readInt();
+    recurse(0, num);
+    writeString("\n");
+    for(i=0; i<2; i=i+1){
+        writeString("Type a string: ");
+        arr[i] = readString();
+    }
+    b = compare(arr[0], arr[1]);
+    if(b == false)
+        writeString("Same strings\n");
+    else
+        writeString("Different strings\n");
+
+    writeString(arr[0]);
+    writeString("\n");
+    writeString(arr[1]);
+    writeString("\n");
+}
+

@@ -17,4 +17,14 @@ flex mylexer.l
 gcc -o mycompiler myanalyzer.tab.c lex.yy.c helperFiles/cgen.c -lfl
 
 # Run the executable with the .pi file
-./mycompiler < examples/"$example" > "$example".c
+./mycompiler < examples/"$example" 
+# > "$example".c
+
+# Split the filename using the delimiter '.'
+IFS='.'
+read -a str <<< "$example"
+
+# echo ${str[0]}
+
+gcc -o ${str[0]} program.c
+./${str[0]}

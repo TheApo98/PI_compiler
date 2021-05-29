@@ -20,12 +20,12 @@ func prime(n int) bool {
       while (isPrime and (i < n / 2) ) { 
          isPrime = n % i != 0;
          i = i + 2;
-      };
+      }
       result = isPrime;
-   };
+   }
    
    return result;
-};
+}
 
 func begin() {
 
@@ -38,9 +38,9 @@ func begin() {
          counter = counter + 1;
          writeInt(num);
          writeString(" ");
-      };
+      }
       num = num + 1;
-   };
+   }
   
    writeString("\n");
    writeInt(counter);   

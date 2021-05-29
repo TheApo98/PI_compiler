@@ -1,0 +1,21 @@
+// Simple program that calculates fibonacci numbers
+
+
+func begin()    
+{    
+    var n1=0,n2=1,n3,i,number int;    
+    writeString("Enter the number of elements:");    
+    number = readInt();   
+    writeInt(n1);
+    writeString(" ");
+    writeInt(n2);
+
+    for(i=2;i<number;i=i+1) {    
+        n3=n1+n2;
+        writeString(" ");
+        writeInt(n3);
+        n1=n2;    
+        n2=n3;    
+    }  
+    writeString("\n");
+ }

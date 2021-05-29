@@ -76,7 +76,7 @@
 
 /* Non-terminal symbols */
 %type <string> program data_type expr statement var_decl const_decl function
-%type <string> decl_list decl body func_decl array local_decl body_return local_decl1
+%type <string> decl_list decl body func_decl array local_decl local_decl1 const_decl2
 %type <string> var_decl1 var_decl2 const1 param param1 statement1 statements 
 %type <string> if_stmt for_stmt while_stmt return_stmt simple_stmt func_stmt func_params assign_stmt
 %type <string> special_rd_func special_wt_func rs_func ri_func rr_func ws_func wi_func wr_func
@@ -155,10 +155,6 @@ body: local_decl statements   { $$ = template("%s\n%s", $1, $2); }
 ;
 
 /* Body of non-void function */
-body_return: local_decl statements   { $$ = template("%s\n%s", $1, $2); }  
-           | statements              { $$ = $1; }  
-;
-
 /* body_return: local_decl statements return_stmt  { $$ = template("%s\n%s\n%s", $1, $2, $3); }  
            | statements return_stmt             { $$ = template("%s\n%s", $1, $2); }  
 ; */
@@ -232,11 +228,16 @@ var_decl1: IDENTIFIER ASSIGN_OP expr            { $$ = template("%s = %s", $1, $
 ;
 
 /* const declaration */
-const_decl: KEYWORD_CONST const1 data_type SEMICOLON { $$ = template("const %s %s;\n", $3, $2); }
+const_decl: KEYWORD_CONST const_decl2 data_type SEMICOLON { $$ = template("const %s %s;\n", $3, $2); }
+;
+
+const_decl2: const1 COMMA const1    { $$ = template("%s , %s", $1, $3); }
+           | const1                 { $$ = $1; }
 ;
 
 const1: IDENTIFIER ASSIGN_OP expr           { $$ = template("%s = %s", $1, $3); }
       | IDENTIFIER ASSIGN_OP CONST_STRING   { $$ = template("%s = %s", $1, $3); }
+      | IDENTIFIER                          { $$ = $1; }
 ;
 
 /* function declaration */
@@ -245,9 +246,9 @@ func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
 ;
 
 /* function construction  */    //needs work
-function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type L_CURLY_BRACKET body_return R_CURLY_BRACKET 
+function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type L_CURLY_BRACKET body R_CURLY_BRACKET 
           { $$ = template("%s %s(%s) {\n%s\n}\n", $6, $2, $4, $8); }
-        | KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN L_BRACKET R_BRACKET data_type L_CURLY_BRACKET body_return R_CURLY_BRACKET 
+        | KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN L_BRACKET R_BRACKET data_type L_CURLY_BRACKET body R_CURLY_BRACKET 
           { $$ = template("%s * %s(%s) {\n%s\n}\n", $8, $2, $4, $10); }
         | KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET 
           { $$ = template("void %s(%s) {\n%s\n}\n", $2, $4, $7); }
@@ -285,14 +286,17 @@ rr_func: RR_FUNCT L_PAREN R_PAREN   { $$ = template("readReal()"); }
 
 ws_func: WS_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON      { $$ = template("writeString(%s);", $3); }
        | WS_FUNCT L_PAREN CONST_STRING R_PAREN SEMICOLON    { $$ = template("writeString(%s);", $3); }
+       | WS_FUNCT L_PAREN array R_PAREN SEMICOLON    { $$ = template("writeString(%s);", $3); }
 ;
 
 wi_func: WI_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON  { $$ = template("writeInt(%s);", $3); }
        | WI_FUNCT L_PAREN INTEGER R_PAREN SEMICOLON     { $$ = template("writeInt(%s);", $3); }
+       | WI_FUNCT L_PAREN array R_PAREN SEMICOLON     { $$ = template("writeInt(%s);", $3); }
 ;
 
 wr_func: WR_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON  { $$ = template("writeReal(%s);", $3); }
        | WR_FUNCT L_PAREN REAL R_PAREN SEMICOLON        { $$ = template("writeReal(%s);", $3); }
+       | WR_FUNCT L_PAREN array R_PAREN SEMICOLON        { $$ = template("writeReal(%s);", $3); }
 ;
 
 statement: L_CURLY_BRACKET statement1 R_CURLY_BRACKET      { $$ = template("{\n%s\n}", $2); }
@@ -318,6 +322,8 @@ simple_stmt: KEYWORD_CONTINUE SEMICOLON   { $$ = template("continue;"); }
 
 assign_stmt: IDENTIFIER ASSIGN_OP expr          { $$ = template("%s = %s", $1, $3); }
            | IDENTIFIER ASSIGN_OP CONST_STRING  { $$ = template("%s = %s", $1, $3); }
+           | array ASSIGN_OP expr               { $$ = template("%s = %s", $1, $3); }
+           | array ASSIGN_OP CONST_STRING       { $$ = template("%s = %s", $1, $3); }
 ;
 
 // needs work
@@ -344,12 +350,15 @@ func_params: func_params COMMA expr    { $$ = template("%s, %s", $1, $3); }
            | %empty                    { $$ = ""; }
 
 return_stmt: KEYWORD_RETURN expr SEMICOLON   { $$ = template("return %s;", $2); }
+           | KEYWORD_RETURN CONST_STRING SEMICOLON   { $$ = template("return %s;", $2); }
            | KEYWORD_RETURN SEMICOLON        { $$ = template("return;"); }
 ;
 
 
 %%
 int main () {
-  if ( yyparse() != 0 )
-    printf("Rejected!\n");
+  if ( yyparse() == 0 )
+    printf("\nSuccessful compilation!\n");
+  else
+    printf("\nRejected!\n");
 }

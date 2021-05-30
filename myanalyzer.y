@@ -75,9 +75,10 @@
 %token WI_FUNCT
 %token WR_FUNCT
 
+
 /* Non-terminal symbols */
-%type <string> program data_type expr statement var_decl const_decl function
-%type <string> decl_list decl body func_decl array local_decl local_decl1 const_decl2
+%type <string> program data_type expr statement var_decl const_decl function func_begin
+%type <string> decl_list decl decl1 decl2 body array local_decl local_decl1 const_decl2
 %type <string> var_decl1 var_decl2 const1 param param1 statement1 statements  func_params1
 %type <string> if_stmt for_stmt while_stmt return_stmt simple_stmt func_stmt func_params assign_stmt
 %type <string> special_rd_func special_wt_func rs_func ri_func rr_func ws_func wi_func wr_func
@@ -89,8 +90,11 @@
 /* Rules */
 %%
 
-program: decl_list KEYWORD_FUNC KEYWORD_BEGIN 
-         L_PAREN R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET { 
+func_begin:  KEYWORD_FUNC KEYWORD_BEGIN L_PAREN R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET
+            { $$ = template("int main() {\n%s\n}\n", $6); }
+;
+
+program: decl_list  { 
   /* We have a successful parse! 
     Check for any errors and generate output. 
   */
@@ -108,49 +112,35 @@ program: decl_list KEYWORD_FUNC KEYWORD_BEGIN
     fputs("typedef char* string;\n", fp);
     fputs($1, fp);
     fputs("\n\n", fp);
-    fputs("int main() {\n", fp);
-    fputs($7, fp);
-    fputs("\n}\n", fp);
 
-    fclose(fp);
-  }
-}
-       | KEYWORD_FUNC KEYWORD_BEGIN 
-         L_PAREN R_PAREN L_CURLY_BRACKET body R_CURLY_BRACKET { 
-  /* We have a successful parse! 
-    Check for any errors and generate output. 
-  */
-  if (yyerror_count == 0) {
-    // include the pilib.h file
-    // puts(c_prologue); 
-    // printf("typedef char* string;\n\n");
-    // printf("int main() {\n%s\n} \n", $6);
-
-    FILE *fp;
-    fp = fopen("program.c", "w+");
-    fputs(c_prologue, fp);
-    fputs("#include <math.h>\n\n", fp);
-    fputs("typedef char* string;\n", fp);
-    fputs("int main() {\n", fp);
-    fputs($6, fp);
-    fputs("\n}\n", fp);
     fclose(fp);
   }
 }
 ;
 
-decl_list: decl_list decl   { $$ = template("%s\n%s", $1, $2); }
-         | decl             { $$ = $1; }
+decl_list: decl decl1 decl2 func_begin    { $$ = template("%s\n%s\n%s\n%s", $1, $2, $3, $4); }
+         | decl decl1 func_begin          { $$ = template("%s\n%s\n%s", $1, $2, $3); }
+         | decl func_begin                { $$ = template("%s\n%s", $1, $2); }
+         | decl1 func_begin               { $$ = template("%s\n%s", $1, $2); }
+         | decl2 func_begin               { $$ = template("%s\n%s", $1, $2); }
+         | decl1 decl2 func_begin         { $$ = template("%s\n%s\n%s", $1, $2, $3); }
+         | decl decl2 func_begin          { $$ = template("%s\n%s\n%s", $1, $2, $3); }
+         | func_begin                     { $$ = $1; }
 ;
 
 /* Function declarations and global vars {before begin()} */
-decl: var_decl    { $$ = $1; }
-    | const_decl  { $$ = $1; }
-    | func_decl   { $$ = $1; }
-    | function    { $$ = $1; }
+decl1: decl1 var_decl    { $$ = template("%s\n%s", $1, $2); }
+     | var_decl          { $$ = $1; }
 ;
 
-// Both need work
+decl: decl const_decl  { $$ = template("%s\n%s", $1, $2); }
+    | const_decl        { $$ = $1; }
+;
+
+decl2: decl2 function   { $$ = template("%s\n%s", $1, $2); }
+     | function         { $$ = $1; }
+;
+
 
 /* Body of the main and other void function */
 body: local_decl statements   { $$ = template("%s\n%s", $1, $2); }
@@ -245,9 +235,9 @@ const1: IDENTIFIER ASSIGN_OP expr           { $$ = template("%s = %s", $1, $3); 
 ;
 
 /* function declaration */
-func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
+/* func_decl: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type SEMICOLON
            { $$ = template("%s %s(%s);", $6, $2, $4);  printf("\n%s\n", $$);}
-;
+; */
 
 /* function construction  */    //needs work
 function: KEYWORD_FUNC IDENTIFIER L_PAREN param R_PAREN data_type L_CURLY_BRACKET body R_CURLY_BRACKET 

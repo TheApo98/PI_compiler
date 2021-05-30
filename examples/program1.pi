@@ -1,4 +1,4 @@
-var str1 = "String1" , str2 = "String2" string;
+const pii = 3.14 real;
 
 // A simple recursive function that counts down from 'num'
 func recurse(a int, num int) {
@@ -9,19 +9,28 @@ func recurse(a int, num int) {
     }
 }
 
+// A simple function that compares strings using strcmp()
 func compare(a string, b string) bool {
     return strcmp(a,b);
 }
 
+// A simple function that calculates the area of a circle
+func areaCalc(radius real) real{
+    return pii * radius ** 2; 
+}
+
 func begin() {
+    //variable declarations
     var num = 0 int;
     var b bool;
     var arr[2] string;
     var i int;
+    var radius=0 real;
+    var area=0 real;
 
     writeString("Type a number: ");
     num = readInt();
-    recurse(0, num);
+    recurse(0, num);        //calling the recursive func
     writeString("\n");
     for(i=0; i<2; i=i+1){
         writeString("Type a string: ");
@@ -29,13 +38,20 @@ func begin() {
     }
     b = compare(arr[0], arr[1]);
     if(b == false)
-        writeString("Same strings\n");
+        writeString("\tStrings match!\n");
     else
-        writeString("Different strings\n");
+        writeString("\tStrings don't match!\n");
 
     writeString(arr[0]);
     writeString("\n");
     writeString(arr[1]);
     writeString("\n");
+
+    writeString("Type the radius of the circle: ");
+    radius = readReal();
+    area = areaCalc(radius);
+    writeReal(area);
+    writeString("\n");
+    
 }
 

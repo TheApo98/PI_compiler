@@ -12,7 +12,7 @@ DIGIT   [0-9]
 NUMBER  {DIGIT}{DIGIT}*
 DECIMAL ("."{NUMBER})|({NUMBER}("."{NUMBER}?)?)
 REAL    {DECIMAL}([eE][+-]?{NUMBER})?
-STRING  \"[^\"\n]*\"
+STRING  \"[^\n]*\"
 
 
 %x comment
@@ -87,7 +87,7 @@ STRING  \"[^\"\n]*\"
 <comment>"*"+"/"        { BEGIN(INITIAL); }
 
 
-.                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, line_num, "test"); exit(1); }
+.                       { printf("Unrecognized Token %s in line %d: %s\n", yytext, line_num, ""); exit(1); }
 \n                      { line_num++; }
 
 <<EOF>>                 { return EOF; }

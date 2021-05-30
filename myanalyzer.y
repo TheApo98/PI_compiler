@@ -9,6 +9,7 @@
     extern int line_num;
 %}
 
+%define parse.error verbose
 %union{
     char* string;
 }
@@ -103,6 +104,7 @@ program: decl_list KEYWORD_FUNC KEYWORD_BEGIN
     FILE *fp;
     fp = fopen("program.c", "w+");
     fputs(c_prologue, fp);
+    fputs("#include <math.h>\n\n", fp);
     fputs("typedef char* string;\n", fp);
     fputs($1, fp);
     fputs("\n\n", fp);
@@ -127,6 +129,7 @@ program: decl_list KEYWORD_FUNC KEYWORD_BEGIN
     FILE *fp;
     fp = fopen("program.c", "w+");
     fputs(c_prologue, fp);
+    fputs("#include <math.h>\n\n", fp);
     fputs("typedef char* string;\n", fp);
     fputs("int main() {\n", fp);
     fputs($6, fp);
@@ -178,7 +181,7 @@ expr: MINUS_OP expr          { $$ = template("-%s", $2); }    //not sure
     | expr MULT_OP expr     { $$ = template("%s * %s", $1, $3); }
     | expr DIV_OP expr      { $$ = template("%s / %s", $1, $3); }
     | expr MOD_OP expr      { $$ = template("%s %s %s", $1, "%", $3); }
-    | expr POWER_OP expr    { $$ = template("%s ** %s", $1, $3); }
+    | expr POWER_OP expr    { $$ = template("pow(%s, %s)", $1, $3); }
     /* | IDENTIFIER L_BRACKET expr R_BRACKET { $$ = template("%s[%s]", $1, $3); } */
     | array                      { $$ = $1; }
     | func_stmt                  { $$ = $1; }

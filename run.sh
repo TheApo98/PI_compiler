@@ -25,6 +25,7 @@ IFS='.'
 read -a str <<< "$example"
 
 # echo ${str[0]}
+mv program.c ${str[0]}.c
 
-gcc -o ${str[0]} program.c
+gcc -o ${str[0]} ${str[0]}.c
 ./${str[0]}

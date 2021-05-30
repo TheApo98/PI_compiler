@@ -77,7 +77,7 @@
 /* Non-terminal symbols */
 %type <string> program data_type expr statement var_decl const_decl function
 %type <string> decl_list decl body func_decl array local_decl local_decl1 const_decl2
-%type <string> var_decl1 var_decl2 const1 param param1 statement1 statements 
+%type <string> var_decl1 var_decl2 const1 param param1 statement1 statements  func_params1
 %type <string> if_stmt for_stmt while_stmt return_stmt simple_stmt func_stmt func_params assign_stmt
 %type <string> special_rd_func special_wt_func rs_func ri_func rr_func ws_func wi_func wr_func
 
@@ -179,7 +179,8 @@ expr: MINUS_OP expr          { $$ = template("-%s", $2); }    //not sure
     | expr DIV_OP expr      { $$ = template("%s / %s", $1, $3); }
     | expr MOD_OP expr      { $$ = template("%s %s %s", $1, "%", $3); }
     | expr POWER_OP expr    { $$ = template("%s ** %s", $1, $3); }
-    | IDENTIFIER L_BRACKET expr R_BRACKET { $$ = template("%s[%s]", $1, $3); }
+    /* | IDENTIFIER L_BRACKET expr R_BRACKET { $$ = template("%s[%s]", $1, $3); } */
+    | array                      { $$ = $1; }
     | func_stmt                  { $$ = $1; }
     | special_rd_func            { $$ = $1; }
     | NOT_LOGIC_OP expr          { $$ = template("!%s", $2); }
@@ -344,10 +345,14 @@ while_stmt: KEYWORD_WHILE L_PAREN expr R_PAREN statement    { $$ = template("whi
 func_stmt: IDENTIFIER L_PAREN func_params R_PAREN { $$ = template("%s(%s)", $1, $3); } 
 ;
 
-func_params: func_params COMMA expr    { $$ = template("%s, %s", $1, $3); }
-           | expr                      { $$ = $1; }
-           | CONST_STRING              { $$ = $1; }
-           | %empty                    { $$ = ""; }
+func_params: func_params COMMA func_params1    { $$ = template("%s, %s", $1, $3); }
+           | func_params1                      { $$ = $1; }
+;
+
+func_params1: expr                      { $$ = $1; }
+            | CONST_STRING              { $$ = $1; }
+            | %empty                    { $$ = ""; }
+;
 
 return_stmt: KEYWORD_RETURN expr SEMICOLON   { $$ = template("return %s;", $2); }
            | KEYWORD_RETURN CONST_STRING SEMICOLON   { $$ = template("return %s;", $2); }

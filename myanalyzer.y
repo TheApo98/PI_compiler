@@ -68,12 +68,12 @@
 %token <string> IDENTIFIER  
 
 /* Special functions */
-%token RS_FUNCT
+/* %token RS_FUNCT
 %token RI_FUNCT
 %token RR_FUNCT
 %token WS_FUNCT
 %token WI_FUNCT
-%token WR_FUNCT
+%token WR_FUNCT */
 
 
 /* Non-terminal symbols */
@@ -81,7 +81,7 @@
 %type <string> decl_list decl decl1 decl2 body array local_decl local_decl1 const_decl2
 %type <string> var_decl1 var_decl2 const1 param param1 statement1 statements  func_params1
 %type <string> if_stmt for_stmt while_stmt return_stmt simple_stmt func_stmt func_params assign_stmt
-%type <string> special_rd_func special_wt_func rs_func ri_func rr_func ws_func wi_func wr_func
+/* %type <string> special_rd_func special_wt_func rs_func ri_func rr_func ws_func wi_func wr_func */
 
 
 /* The first symbol */
@@ -175,7 +175,7 @@ expr: MINUS_OP expr          { $$ = template("-%s", $2); }    //not sure
     /* | IDENTIFIER L_BRACKET expr R_BRACKET { $$ = template("%s[%s]", $1, $3); } */
     | array                      { $$ = $1; }
     | func_stmt                  { $$ = $1; }
-    | special_rd_func            { $$ = $1; }
+    /* | special_rd_func            { $$ = $1; } */
     | NOT_LOGIC_OP expr          { $$ = template("!%s", $2); }
     | expr AND_LOGIC_OP expr    { $$ = template("%s && %s", $1, $3); }
     | expr OR_LOGIC_OP expr     { $$ = template("%s || %s", $1, $3); }
@@ -259,7 +259,7 @@ param: param1 COMMA param     { $$ = template("%s, %s", $1, $3); }
 ;
 
 /* special fucntions */   
-special_rd_func: rs_func { $$ = $1; }
+/* special_rd_func: rs_func { $$ = $1; }
                | ri_func { $$ = $1; }
                | rr_func { $$ = $1; }
 ;
@@ -291,7 +291,7 @@ wi_func: WI_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON  { $$ = template("writeIn
 wr_func: WR_FUNCT L_PAREN IDENTIFIER R_PAREN SEMICOLON  { $$ = template("writeReal(%s);", $3); }
        | WR_FUNCT L_PAREN REAL R_PAREN SEMICOLON        { $$ = template("writeReal(%s);", $3); }
        | WR_FUNCT L_PAREN array R_PAREN SEMICOLON        { $$ = template("writeReal(%s);", $3); }
-;
+; */
 
 statement: L_CURLY_BRACKET statement1 R_CURLY_BRACKET      { $$ = template("{\n%s\n}", $2); }
          | simple_stmt                  { $$ = $1; }
@@ -309,8 +309,8 @@ simple_stmt: KEYWORD_CONTINUE SEMICOLON   { $$ = template("continue;"); }
            | for_stmt                     { $$ = $1; }
            | while_stmt                   { $$ = $1; }
            | func_stmt SEMICOLON          { $$ = template("%s;", $1); }
-           | special_rd_func SEMICOLON    { $$ = template("%s;", $1); }
-           | special_wt_func              { $$ = $1; }
+           /* | special_rd_func SEMICOLON    { $$ = template("%s;", $1); } */
+           /* | special_wt_func              { $$ = $1; } */
            | return_stmt                  { $$ = $1; }
 ;
 
